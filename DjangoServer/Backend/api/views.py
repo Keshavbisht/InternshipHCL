@@ -7,25 +7,52 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import LoginSerializer, RegisterSerializer, UserSerializer
 from django.contrib.auth.models import User
 from api.models import UserExtra
+#-------------------------***********-----------------------
+# Login code before adding role - 4 dec - 9 am
 
-
+# @api_view(['POST'])
+# @permission_classes([AllowAny])
+# def login_view(request):
+#     serializer = LoginSerializer(data=request.data)
+    
+#     if serializer.is_valid():
+#         user = serializer.validated_data['user']
+#         refresh = RefreshToken.for_user(user)
+        
+#         return Response({
+#             'user': UserSerializer(user).data,
+#             "role": role,
+#             'tokens': {
+#                 'refresh': str(refresh),
+#                 'access': str(refresh.access_token),
+#             }
+#         }, status=status.HTTP_200_OK)
+    
+#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_view(request):
     serializer = LoginSerializer(data=request.data)
-    
+
     if serializer.is_valid():
         user = serializer.validated_data['user']
         refresh = RefreshToken.for_user(user)
-        
+
+        # ✅ Fetch role from UserExtra
+        try:
+            role = user.extra.role  # thanks to related_name="extra"
+        except UserExtra.DoesNotExist:
+            role = "user"
+
         return Response({
             'user': UserSerializer(user).data,
+            'role': role,  # 👈 IMPORTANT
             'tokens': {
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
             }
         }, status=status.HTTP_200_OK)
-    
+
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -83,6 +110,7 @@ def list_users(request):
             "last_name": user.last_name,
             "phone": extra.phone if extra else None,
             "status": extra.status if extra else None,
+            "role": extra.role if extra else "user"
         })
 
     return Response(data)
@@ -233,3 +261,30 @@ def toggle_status(request, id):
         return Response({
             'error': 'User not found'
         }, status=status.HTTP_404_NOT_FOUND)
+        
+        #update role by admin
+@api_view(['PATCH'])
+@permission_classes([AllowAny])
+def update_role(request, id):
+    """Admin changes user's role"""
+    try:
+        user = User.objects.get(id=id)
+        
+        # IMPORTANT FIX
+        extra, created = UserExtra.objects.get_or_create(user=user)
+
+        new_role = request.data.get("role")
+
+        if new_role not in ["admin", "user"]:
+            return Response({"error": "Invalid role"}, status=400)
+
+        extra.role = new_role
+        extra.save()
+
+        return Response({
+            "message": "Role updated successfully",
+            "role": new_role
+        }, status=200)
+
+    except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=404)
