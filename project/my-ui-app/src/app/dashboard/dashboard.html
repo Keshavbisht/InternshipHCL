@@ -1,0 +1,143 @@
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div>
+    <strong>Dashboard</strong> &nbsp; | &nbsp;
+    Logged in as: <span class="badge">{{ role }}</span>
+  </div>
+  <button class="logout-btn" (click)="logout()">Logout</button>
+</div>
+
+<!-- SEARCH -->
+<div class="search-wrapper">
+  <input
+    type="text"
+    class="search-input"
+    placeholder="Search by name, email, username, phone, status, role..."
+    [(ngModel)]="searchText"
+    (input)="filterUsers()"
+  />
+</div>
+
+<!-- USERS TABLE -->
+<table class="user-table" *ngIf="!isLoadingUsers && paginatedUsers.length > 0">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Full Name</th>
+      <th>Username</th>
+      <th>Email</th>
+      <th>Phone</th>
+      <th>Status</th>
+      <th>Role</th>
+      <th *ngIf="isAdmin">Actions</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr *ngFor="let u of paginatedUsers">
+      <td>{{ u.id }}</td>
+      <td>{{ u.first_name }} {{ u.last_name }}</td>
+      <td>{{ u.username }}</td>
+      <td>{{ u.email }}</td>
+      <td>{{ u.phone || 'N/A' }}</td>
+
+      <td>
+        <button
+          class="status-badge"
+          [class.status-active]="u.status === 'active'"
+          [class.status-inactive]="u.status === 'inactive'"
+          (click)="toggleStatus(u)"
+          [disabled]="!isAdmin"
+          title="Click to toggle status"
+        >
+          {{ u.status || 'inactive' }}
+        </button>
+      </td>
+
+      <td>
+        <select
+          [disabled]="!isAdmin || u.id === loggedInUserId"
+          (change)="changeRole(u, $event)"
+        >
+          <option value="admin" [selected]="u.role === 'admin'">Admin</option>
+          <option value="user" [selected]="u.role === 'user'">User</option>
+        </select>
+      </td>
+
+      <td *ngIf="isAdmin">
+        <button class="edit-btn" (click)="openEditModal(u)">Edit</button>
+        <button class="delete-btn" (click)="deleteUser(u.id)">Delete</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div *ngIf="!isLoadingUsers && paginatedUsers.length === 0" class="no-data">
+  No users found.
+</div>
+
+<div *ngIf="isLoadingUsers" class="loading">Loading users...</div>
+
+<!-- PAGINATION -->
+<div class="pagination" *ngIf="totalPages > 1">
+  <button (click)="previousPage()" [disabled]="currentPage === 1">
+    Prev
+  </button>
+
+  <button
+    *ngFor="let p of pageNumbers"
+    [class.active]="p === currentPage"
+    (click)="goToPage(p)"
+  >
+    {{ p }}
+  </button>
+
+  <button (click)="nextPage()" [disabled]="currentPage === totalPages">
+    Next
+  </button>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-backdrop" *ngIf="showEditModal">
+  <div class="modal-box">
+    <h3>Edit User</h3>
+
+    <label>First Name</label>
+    <input type="text" [(ngModel)]="editForm.first_name" />
+
+    <label>Last Name</label>
+    <input type="text" [(ngModel)]="editForm.last_name" />
+
+    <label>Username</label>
+    <input type="text" [(ngModel)]="editForm.username" />
+
+    <label>Email</label>
+    <input type="email" [(ngModel)]="editForm.email" />
+
+    <label>Phone</label>
+    <input type="text" [(ngModel)]="editForm.phone" />
+
+    <label>Status</label>
+    <select [(ngModel)]="editForm.status">
+      <option value="active">Active</option>
+      <option value="inactive">Inactive</option>
+    </select>
+
+    <label *ngIf="isAdmin">Role</label>
+    <select *ngIf="isAdmin" [(ngModel)]="editForm.role">
+      <option value="admin">Admin</option>
+      <option value="user">User</option>
+    </select>
+
+    <label>Password (optional)</label>
+    <input type="password" [(ngModel)]="editForm.password" />
+
+    <label>Confirm Password</label>
+    <input type="password" [(ngModel)]="editForm.confirmPassword" />
+
+    <div class="modal-actions">
+      <button class="cancel-btn" (click)="closeModal()">Cancel</button>
+      <button class="save-btn" (click)="updateUser()">Update</button>
+    </div>
+  </div>
+</div>

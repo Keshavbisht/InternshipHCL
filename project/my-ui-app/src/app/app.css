@@ -9,3 +9,17 @@
   margin: 20px;
   font-size: 18px;
 }
+.nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  font-size: 16px;
+  color: white;
+}
+
+.nav-links a:hover {
+  text-decoration: underline;
+}

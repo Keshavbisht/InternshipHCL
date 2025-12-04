@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterOutlet, Router, NavigationEnd, ActivatedRoute } from '@angular/router';
+import { RouterOutlet, RouterLink, Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { filter, map, mergeMap } from 'rxjs/operators';
 
 @Component({
@@ -7,7 +7,7 @@ import { filter, map, mergeMap } from 'rxjs/operators';
   standalone: true,
   templateUrl: './app.html',
   styleUrls: ['./app.css'],
-  imports: [RouterOutlet]
+  imports: [RouterOutlet, RouterLink]   // ✔ FIXED — Added RouterLink
 })
 export class AppComponent {
   title = '';
@@ -28,7 +28,7 @@ export class AppComponent {
         mergeMap(route => route?.data ?? [])
       )
       .subscribe(data => {
-        this.title = data['title'] || 'My App'; // fallback title
+        this.title = data['title'] || 'My App';
       });
   }
 }

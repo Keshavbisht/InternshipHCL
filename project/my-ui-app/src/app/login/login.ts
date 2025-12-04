@@ -64,6 +64,15 @@ export class LoginComponent {
     next: (response: any) => {
       console.log('Login successful!', response);
       this.isLoading = false;
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("role", response.role);   // 👈 SAVE ROLE
+       if (response.role === 'admin') {
+          this.router.navigate(['/dashboard']);        // Admin → Dashboard
+        } else {
+          this.router.navigate(['/dashboard']);        // Normal user → User Home (create this page)
+        }
+        // Move user to dashboard
+     
       alert('Login successful!');
     },
     error: (error: any) => {

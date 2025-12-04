@@ -11,6 +11,7 @@ interface LoginResponse {
     first_name: string;
     last_name: string;
   };
+  role: string;   // 👈 BACKEND PROVIDES ROLE SEPARATELY
   tokens: {
     access: string;
     refresh: string;
@@ -36,10 +37,22 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login/`, { email, password })
       .pipe(
         tap(response => {
+
+          // Save tokens
           localStorage.setItem('access_token', response.tokens.access);
           localStorage.setItem('refresh_token', response.tokens.refresh);
+
+          // Save user details
           localStorage.setItem('user', JSON.stringify(response.user));
-          this.currentUserSubject.next(response.user);
+
+          // ⚡ Save role separately
+          localStorage.setItem('role', response.role);
+
+          // Update observable
+          this.currentUserSubject.next({
+            ...response.user,
+            role: response.role     // 👈 include role
+          });
         })
       );
   }
@@ -48,10 +61,19 @@ export class AuthService {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('user');
+    localStorage.removeItem('role');
     this.currentUserSubject.next(null);
   }
 
   isAuthenticated(): boolean {
     return !!localStorage.getItem('access_token');
+  }
+
+  getRole(): string | null {
+    return localStorage.getItem('role');
+  }
+
+  isAdmin(): boolean {
+    return this.getRole() === 'admin';
   }
 }
