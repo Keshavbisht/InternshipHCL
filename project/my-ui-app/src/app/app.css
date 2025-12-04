@@ -1,0 +1,11 @@
+.navbar {
+  background: #2f65da;
+  color: white;
+  padding: 10px;
+  text-align: center;
+}
+
+.content {
+  margin: 20px;
+  font-size: 18px;
+}

@@ -1,0 +1,62 @@
+<div class="login-container">
+  <div class="login-card">
+    <h2>Welcome Back</h2>
+    <p class="subtitle">Login to your account</p>
+
+    <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+
+      <!-- 🔴 Show error only when JS validation fails -->
+      <div *ngIf="errorMessage" class="alert alert-error">
+        {{ errorMessage }}
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          [(ngModel)]="email"
+          placeholder="Enter your email"
+          class="form-control"
+          required
+          email
+          [disabled]="isLoading">
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          [(ngModel)]="password"
+          placeholder="Enter your password"
+          class="form-control"
+          required
+          minlength="6"
+          [disabled]="isLoading">
+      </div>
+
+      <button
+        type="submit"
+        class="btn-primary"
+    
+        [disabled]="!loginForm.form.valid || isLoading">
+        {{ isLoading ? 'Logging in...' : 'Login' }}
+      </button>
+    </form>
+
+    <!-- Register section OUTSIDE the form -->
+    <div class="divider"><span>OR</span></div>
+
+    <button type="button" class="btn-register" (click)="goToRegister()">
+      Create New Account
+    </button>
+
+    <div class="register-link">
+      Don't have an account?
+      <a (click)="goToRegister()" class="link" style="cursor: pointer;">Register here</a>
+    </div>
+  </div>
+</div>

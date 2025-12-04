@@ -1,0 +1,193 @@
+<div class="register-wrapper">
+  <div class="register-card">
+
+    <!-- Icon -->
+    <div class="header-icon">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+      </svg>
+    </div>
+
+    <h2>{{ isEditMode ? 'Edit User' : 'Create Account' }}</h2>
+    <p class="subtitle">{{ isEditMode ? 'Update user details below' : 'Fill the form to register' }}</p>
+
+    <!-- Success -->
+    <div *ngIf="successMessage" class="alert success">
+      {{ successMessage }}
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="errorMessage" class="alert error">
+      {{ errorMessage }}
+    </div>
+
+    <!-- FORM -->
+    <form (ngSubmit)="onSubmit()">
+      
+      <!-- First + Last Name -->
+      <div class="name-row">
+        <div class="input-group">
+          <label>First Name</label>
+          <input type="text" name="first_name" [(ngModel)]="form.first_name" required />
+        </div>
+
+        <div class="input-group">
+          <label>Last Name</label>
+          <input type="text" name="last_name" [(ngModel)]="form.last_name" required />
+        </div>
+      </div>
+
+      <!-- Username -->
+      <div class="input-group">
+        <label>Username</label>
+        <div class="input-wrapper">
+          <input class="with-icon" type="text" name="username" [(ngModel)]="form.username" required />
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="input-group">
+        <label>Email</label>
+        <div class="input-wrapper">
+          <input class="with-icon" type="email" name="email" [(ngModel)]="form.email" required />
+        </div>
+      </div>
+
+      <!-- Phone -->
+      <div class="input-group">
+        <label>Phone</label>
+        <div class="input-wrapper">
+          <input class="with-icon" type="tel" name="phone" [(ngModel)]="form.phone" required minlength="10" />
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="input-group">
+        <label>Password</label>
+        <div class="input-wrapper">
+          <input class="with-icon" type="password" name="password" [(ngModel)]="form.password" required minlength="6" />
+        </div>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="input-group">
+        <label>Confirm Password</label>
+        <div class="input-wrapper">
+          <input class="with-icon" type="password" name="confirmPassword" [(ngModel)]="form.confirmPassword" required />
+        </div>
+      </div>
+
+      <!-- BUTTONS -->
+      <div class="button-group">
+        <button class="btn-primary" type="submit" [disabled]="isLoading">
+          {{ isLoading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update User' : 'Create Account') }}
+        </button>
+
+        <button *ngIf="isEditMode" class="btn-cancel" type="button" (click)="cancelEdit()">
+          Cancel
+        </button>
+      </div>
+      <p class="login-link">
+  Already have an account?
+  <a routerLink="/login">Login here</a>
+</p>
+
+
+    </form>
+  </div>
+</div>
+
+<!-- USERS TABLE SECTION -->
+<div class="user-table-container">
+
+  <h3>Registered Users</h3>
+
+  <!-- Loading msg -->
+  <div *ngIf="isLoadingUsers" class="loading-message">
+    Loading users...
+  </div>
+
+  <!-- No users message -->
+  <div *ngIf="!isLoadingUsers && filteredUsers.length === 0" class="no-users-message">
+    No users found.
+  </div>
+
+  <!-- Search + Table -->
+  <div *ngIf="!isLoadingUsers && filteredUsers.length > 0">
+
+    <div class="table-controls">
+      <input class="search-input" type="text" placeholder="Search users..."
+        [(ngModel)]="searchText" (input)="filterUsers()" />
+
+      <div class="items-per-page">
+        <label>Show:</label>
+        <select [(ngModel)]="itemsPerPage" (change)="updatePagination()">
+          <option [value]="5">5</option>
+          <option [value]="10">10</option>
+          <option [value]="25">25</option>
+          <option [value]="50">50</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <table class="user-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Full Name</th>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let u of paginatedUsers">
+          <td>{{ u.id }}</td>
+          <td>{{ u.first_name }} {{ u.last_name }}</td>
+          <td>{{ u.username }}</td>
+          <td>{{ u.email }}</td>
+          <td>{{ u.phone || "N/A" }}</td>
+
+          <td>
+            <button class="status-badge"
+              [class.status-active]="u.status === 'active'"
+              [class.status-inactive]="u.status === 'inactive'"
+              (click)="toggleStatus(u)">
+              {{ u.status || 'inactive' }}
+            </button>
+          </td>
+
+          <td>
+            <button class="edit-btn" (click)="editUser(u)">Edit</button>
+            <button class="delete-btn" (click)="deleteUser(u.id)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- PAGINATION -->
+    <div class="pagination">
+      <button class="page-btn" (click)="previousPage()" [disabled]="currentPage === 1">
+        ← Previous
+      </button>
+
+      <button 
+        *ngFor="let page of pageNumbers"
+        class="page-btn"
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)">
+        {{ page }}
+      </button>
+
+      <button class="page-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+        Next →
+      </button>
+    </div>
+
+  </div>
+</div>
