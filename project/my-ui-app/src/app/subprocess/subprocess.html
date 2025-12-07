@@ -1,0 +1,109 @@
+<div class="process-wrapper">
+  <div class="process-card">
+
+    <div class="header-icon">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 4v16m8-8H4" />
+      </svg>
+    </div>
+
+    <h2>{{ editingId ? 'Edit SubProcess' : 'Create SubProcess' }}</h2>
+    <p class="subtitle">
+      {{ editingId ? 'Update subprocess below' : 'Add a new subprocess' }}
+    </p>
+
+    <div *ngIf="successMessage" class="alert success">{{ successMessage }}</div>
+    <div *ngIf="errorMessage" class="alert error">{{ errorMessage }}</div>
+
+    <form (ngSubmit)="saveSubProcess()">
+
+      <!-- Process Dropdown -->
+      <div class="input-group">
+        <label>Select Process</label>
+        <div class="input-wrapper">
+          <select [(ngModel)]="selectedProcess" name="process" required>
+            <option value="" disabled selected>Select Process</option>
+
+            <!-- ✔ This sends process_id -->
+            <option *ngFor="let p of processes" [value]="p.process_id">
+              {{ p.process_name }}
+            </option>
+
+          </select>
+        </div>
+      </div>
+
+      <!-- SubProcess Name -->
+      <div class="input-group">
+        <label>SubProcess Name</label>
+        <div class="input-wrapper">
+          <input type="text" [(ngModel)]="subprocessName" name="subprocess_name"
+                 placeholder="Enter subprocess name" required />
+        </div>
+      </div>
+
+      <!-- Status -->
+      <div class="input-group checkbox-row">
+        <label>Status</label>
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="status" name="status" />
+          <span>Active</span>
+        </label>
+      </div>
+
+      <!-- Buttons -->
+      <div class="button-group">
+        <button class="btn-primary" type="submit">
+          {{ editingId ? 'Update SubProcess' : 'Add SubProcess' }}
+        </button>
+
+        <button class="btn-cancel" type="button" (click)="clearForm()">
+          Clear
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- SUBPROCESS TABLE -->
+<div class="table-wrapper">
+  <div class="table-card">
+
+    <h3 class="table-title">SubProcess List</h3>
+
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Process</th>
+          <th>SubProcess</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let sp of subprocesses">
+
+          <td>{{ sp.subprocess_id }}</td>
+          <td>{{ sp.process_name }}</td>
+          <td>{{ sp.subprocess_name }}</td>
+
+          <td>
+            <span class="status active" *ngIf="sp.status === 'active'">● Active</span>
+            <span class="status inactive" *ngIf="sp.status === 'inactive'">● Inactive</span>
+          </td>
+
+          <td>
+            <button class="btn-edit" (click)="editSubProcess(sp)">Edit</button>
+            <button class="btn-delete" (click)="deleteSubProcess(sp.subprocess_id)">Delete</button>
+          </td>
+
+        </tr>
+      </tbody>
+
+    </table>
+  </div>
+</div>

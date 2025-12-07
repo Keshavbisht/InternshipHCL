@@ -7,6 +7,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import LoginSerializer, RegisterSerializer, UserSerializer
 from django.contrib.auth.models import User
 from api.models import UserExtra
+
+from api.models import Process
+
 #-------------------------***********-----------------------
 # Login code before adding role - 4 dec - 9 am
 
@@ -288,3 +291,172 @@ def update_role(request, id):
 
     except User.DoesNotExist:
         return Response({"error": "User not found"}, status=404)
+    
+
+
+#PROCESS VIEW TO CREATE PROCESS
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def create_process(request):
+    process_name = request.data.get("process_name")
+    status = request.data.get("status", "active")
+
+    if not process_name:
+        return Response({"error": "Process name is required"}, status=400)
+
+    if Process.objects.filter(process_name=process_name).exists():
+        return Response({"error": "Process already exists"}, status=400)
+
+    process = Process.objects.create(
+        process_name=process_name,
+        status=status
+    )
+
+    return Response({
+        "message": "Process created successfully",
+        "process": {
+            "process_id": process.process_id,
+            "process_name": process.process_name,
+            "status": process.status
+        }
+    }, status=201)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def list_processes(request):
+    processes = Process.objects.all().order_by('-created_at')
+
+    data = []
+    for p in processes:
+        data.append({
+            "process_id": p.process_id,
+            "process_name": p.process_name,
+            "status": p.status,
+            "created_at": p.created_at,
+            "updated_at": p.updated_at
+        })
+
+    return Response(data, status=200)
+
+@api_view(['PUT'])
+@permission_classes([AllowAny])
+def update_process(request, id):
+    try:
+        process = Process.objects.get(process_id=id)
+    except Process.DoesNotExist:
+        return Response({"error": "Process not found"}, status=404)
+
+    process.process_name = request.data.get("process_name", process.process_name)
+    process.status = request.data.get("status", process.status)
+    process.save()
+
+    return Response({
+        "message": "Process updated successfully",
+        "process": {
+            "process_id": process.process_id,
+            "process_name": process.process_name,
+            "status": process.status
+        }
+    }, status=200)
+
+@api_view(['DELETE'])
+@permission_classes([AllowAny])
+def delete_process(request, id):
+    try:
+        process = Process.objects.get(process_id=id)
+    except Process.DoesNotExist:
+        return Response({"error": "Process not found"}, status=404)
+
+    process.delete()
+    return Response({"message": "Process deleted successfully"}, status=200)
+
+from api.models import SubProcess, Process
+
+# CREATE SUBPROCESS VIEW
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def create_subprocess(request):
+    process_id = request.data.get("process_id")
+    subprocess_name = request.data.get("subprocess_name")
+    status = request.data.get("status", "active")
+
+    if not process_id:
+        return Response({"error": "process_id is required"}, status=400)
+
+    if not subprocess_name:
+        return Response({"error": "subprocess_name is required"}, status=400)
+
+    try:
+        process = Process.objects.get(process_id=process_id)
+    except Process.DoesNotExist:
+        return Response({"error": "Invalid process_id"}, status=404)
+
+    sub = SubProcess.objects.create(
+        process=process,
+        subprocess_name=subprocess_name,
+        status=status
+    )
+
+    return Response({
+        "message": "Subprocess created successfully",
+        "subprocess": {
+            "subprocess_id": sub.subprocess_id,
+            "process_id": process_id,
+            "subprocess_name": sub.subprocess_name,
+            "status": sub.status
+        }
+    }, status=201)
+# LIST SUBPROCESSES VIEW
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def list_subprocesses(request):
+    subprocesses = SubProcess.objects.select_related("process").all().order_by("-created_at")
+
+    data = []
+    for s in subprocesses:
+        data.append({
+            "subprocess_id": s.subprocess_id,
+            "subprocess_name": s.subprocess_name,
+            "status": s.status,
+            "process_id": s.process.process_id,
+            "process_name": s.process.process_name,
+            "created_at": s.created_at
+        })
+
+    return Response(data, status=200)
+# UPDATE SUBPROCESS VIEW
+@api_view(['PUT'])
+@permission_classes([AllowAny])
+def update_subprocess(request, id):
+    try:
+        sub = SubProcess.objects.get(subprocess_id=id)
+    except SubProcess.DoesNotExist:
+        return Response({"error": "SubProcess not found"}, status=404)
+
+    sub.subprocess_name = request.data.get("subprocess_name", sub.subprocess_name)
+    sub.status = request.data.get("status", sub.status)
+
+    # Optional: change process
+    new_process_id = request.data.get("process_id")
+    if new_process_id:
+        try:
+            new_process = Process.objects.get(process_id=new_process_id)
+            sub.process = new_process
+        except Process.DoesNotExist:
+            return Response({"error": "Invalid new process_id"}, status=404)
+
+    sub.save()
+
+    return Response({"message": "SubProcess updated successfully"}, status=200)
+# DELETE SUBPROCESS VIEW
+@api_view(['DELETE'])
+@permission_classes([AllowAny])
+def delete_subprocess(request, id):
+    try:
+        sub = SubProcess.objects.get(subprocess_id=id)
+    except SubProcess.DoesNotExist:
+        return Response({"error": "SubProcess not found"}, status=404)
+
+    sub.delete()
+
+    return Response({"message": "SubProcess deleted successfully"}, status=200)

@@ -12,6 +12,19 @@ urlpatterns = [
     path('users/<int:id>/update/', views.update_user, name='update_user'),
     path('users/<int:id>/toggle-status/', views.toggle_status, name='toggle_status'),
     path("users/<int:id>/role/", views.update_role),
+    
+    # PROCESS ROUTES
+    path('process/create/', views.create_process),
+    path('process/list/', views.list_processes),
+    path('process/<int:id>/update/', views.update_process),
+    path('process/<int:id>/delete/', views.delete_process),
+    # SUBPROCESS ROUTES
+    path('subprocess/create/', views.create_subprocess),
+    path('subprocess/list/', views.list_subprocesses),
+    path('subprocess/<int:id>/update/', views.update_subprocess),
+    path('subprocess/<int:id>/delete/', views.delete_subprocess),
+
+
 
 
 ]

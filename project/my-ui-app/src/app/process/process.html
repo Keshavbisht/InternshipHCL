@@ -1,0 +1,90 @@
+<div class="process-wrapper">
+  <div class="process-card">
+
+    <!-- Icon -->
+    <div class="header-icon">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M9 12h6m-3-3v6m9-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    </div>
+
+    <h2>{{ editingId ? 'Edit Process' : 'Create Process' }}</h2>
+    <p class="subtitle">
+      {{ editingId ? 'Update the process details below' : 'Add a new process to the system' }}
+    </p>
+
+    <!-- Success & Error -->
+    <div *ngIf="successMessage" class="alert success">{{ successMessage }}</div>
+    <div *ngIf="errorMessage" class="alert error">{{ errorMessage }}</div>
+
+    <!-- FORM -->
+    <form (ngSubmit)="saveProcess()">
+
+      <!-- Process Name -->
+      <div class="input-group">
+        <label>Process Name</label>
+        <div class="input-wrapper">
+          <input type="text" [(ngModel)]="processName" name="process_name" required placeholder="Enter process name" />
+        </div>
+      </div>
+
+      <!-- Status Checkbox -->
+      <div class="input-group checkbox-row">
+        <label>Status</label>
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="status" name="status" />
+          <span>Active</span>
+        </label>
+      </div>
+
+      <!-- Buttons -->
+      <div class="button-group">
+        <button type="submit" class="btn-primary">
+          {{ editingId ? 'Update Process' : 'Add Process' }}
+        </button>
+
+        <button type="button" class="btn-cancel" (click)="clearForm()">
+          Clear
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- PROCESS TABLE -->
+<div class="table-wrapper">
+  <div class="table-card">
+
+    <h3 class="table-title">Process List</h3>
+
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Process Name</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let p of processes">
+          <td>{{ p.process_id }}</td>
+          <td>{{ p.process_name }}</td>
+
+          <td>
+            <span class="status active" *ngIf="p.status === 'active'">● Active</span>
+            <span class="status inactive" *ngIf="p.status === 'inactive'">● Inactive</span>
+          </td>
+
+          <td>
+            <button class="btn-edit" (click)="editProcess(p)">Edit</button>
+            <button class="btn-delete" (click)="deleteProcess(p.process_id)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+</div>

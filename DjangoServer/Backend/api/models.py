@@ -4,6 +4,7 @@ from django.db import models
 # from django.db import models
 from django.contrib.auth.models import User
 
+# Extend the User model to include extra fields
 class UserExtra(models.Model):
     STATUS_CHOICES = (
         ('active', 'Active'),
@@ -23,4 +24,50 @@ class UserExtra(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+# PROCESS TABLE MODEL
+class Process(models.Model):
+    process_id = models.AutoField(primary_key=True)
+    STATUS_CHOICES = (
+        ('active', 'Active'),
+        ('inactive', 'Inactive'),
+    )
+
+    process_name = models.CharField(max_length=100, unique=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
+
+    created_at = models.DateTimeField(auto_now_add=True)  
+    updated_at = models.DateTimeField(auto_now=True)      
+
+    def __str__(self):
+        return self.process_name
+
+
+# SUB PROCESS TABLE MODEL
+class SubProcess(models.Model):
+    subprocess_id = models.AutoField(primary_key=True)
+
+    STATUS_CHOICES = (
+        ('active', 'Active'),
+        ('inactive', 'Inactive'),
+    )
+
+    # 🔵 Process dropdown (FK)
+    process = models.ForeignKey(
+        Process,
+        on_delete=models.CASCADE,
+        related_name="subprocesses"
+    )
+
+    subprocess_name = models.CharField(max_length=200)
+
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
+
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.process.process_name} → {self.subprocess_name}"
+
 

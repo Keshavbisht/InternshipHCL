@@ -1,0 +1,131 @@
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+
+@Component({
+  selector: 'app-subprocess',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './subprocess.html',
+  styleUrls: ['./subprocess.css']
+})
+export class Subprocess {
+
+  apiBase = "http://127.0.0.1:8000/api/auth";
+
+  processes: any[] = [];
+  subprocesses: any[] = [];
+
+  selectedProcess: number | null = null;   // will store process_id
+  subprocessName: string = '';
+  status: boolean = true;
+
+  editingId: number | null = null;
+
+  successMessage = '';
+  errorMessage = '';
+
+  constructor(private http: HttpClient) {}
+
+  ngOnInit() {
+    this.loadProcesses();
+    this.loadSubProcesses();
+  }
+
+  // 🔹 LOAD ALL PROCESSES (for dropdown)
+  loadProcesses() {
+    this.http.get(`${this.apiBase}/process/list/`).subscribe({
+      next: (res: any) => {
+        this.processes = res;
+      },
+      error: () => {
+        this.errorMessage = "Failed to load processes.";
+      }
+    });
+  }
+
+  // 🔹 LOAD SUBPROCESSES
+  loadSubProcesses() {
+    this.http.get(`${this.apiBase}/subprocess/list/`).subscribe({
+      next: (res: any) => {
+        this.subprocesses = res;
+      },
+      error: () => {
+        this.errorMessage = "Failed to load subprocess data.";
+      }
+    });
+  }
+
+  // 🔹 CREATE / UPDATE SUBPROCESS
+  saveSubProcess() {
+    if (!this.selectedProcess) {
+      this.errorMessage = "Please select a Process.";
+      return;
+    }
+
+    const body = {
+      process_id: this.selectedProcess,   // ✔ send ID
+      subprocess_name: this.subprocessName,
+      status: this.status ? "active" : "inactive"
+    };
+
+    if (this.editingId) {
+      // UPDATE
+      this.http.put(`${this.apiBase}/subprocess/${this.editingId}/update/`, body)
+        .subscribe({
+          next: () => {
+            this.successMessage = "SubProcess updated successfully!";
+            this.loadSubProcesses();
+            this.clearForm();
+          }
+        });
+
+    } else {
+      // CREATE
+      this.http.post(`${this.apiBase}/subprocess/create/`, body)
+        .subscribe({
+          next: () => {
+            this.successMessage = "SubProcess created successfully!";
+            this.loadSubProcesses();
+            this.clearForm();
+          }
+        });
+    }
+  }
+
+  // 🔹 EDIT SUBPROCESS
+  editSubProcess(item: any) {
+    this.editingId = item.subprocess_id;
+    this.selectedProcess = item.process_id;
+    this.subprocessName = item.subprocess_name;
+    this.status = item.status === "active";
+  }
+
+  // 🔹 DELETE SUBPROCESS
+  deleteSubProcess(id: number) {
+    if (!confirm("Are you sure you want to delete this SubProcess?")) return;
+
+    this.http.delete(`${this.apiBase}/subprocess/${id}/delete/`)
+      .subscribe({
+        next: () => {
+          this.successMessage = "SubProcess deleted!";
+          this.loadSubProcesses();
+        }
+      });
+  }
+
+  // 🔹 RESET FORM
+  clearForm() {
+    this.editingId = null;
+    this.selectedProcess = null;
+    this.subprocessName = '';
+    this.status = true;
+
+    setTimeout(() => {
+      this.successMessage = '';
+      this.errorMessage = '';
+    }, 2000);
+  }
+
+}

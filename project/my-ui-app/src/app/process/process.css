@@ -1,0 +1,172 @@
+.container {
+  max-width: 900px;
+}
+
+.card {
+  border-radius: 8px;
+}
+/* Page Wrapper */
+.process-wrapper {
+  display: flex;
+  justify-content: center;
+  padding-top: 40px;
+}
+
+.process-card {
+  width: 420px;
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0px 4px 20px rgba(0,0,0,0.08);
+  text-align: center;
+}
+
+.header-icon svg {
+  width: 50px;
+  height: 50px;
+  stroke: #4A90E2;
+  margin-bottom: 10px;
+}
+
+h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.subtitle {
+  color: #666;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+/* Input Groups */
+.input-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.input-group label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.input-wrapper {
+  background: #f4f4f4;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+
+.input-wrapper input {
+  width: 100%;
+  background: none;
+  border: none;
+  outline: none;
+}
+
+/* Checkbox */
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Buttons */
+.button-group {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.btn-primary {
+  flex: 1;
+  padding: 10px;
+  background: #4A90E2;
+  border: none;
+  color: white;
+  border-radius: 10px;
+  font-weight: bold;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.btn-cancel {
+  padding: 10px;
+  background: #ddd;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* Table Section */
+.table-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.table-card {
+  width: 900px;
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0px 4px 20px rgba(0,0,0,0.08);
+}
+
+.table-title {
+  margin-bottom: 15px;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+/* Styled Table */
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.styled-table th {
+  background: #4A90E2;
+  color: white;
+  padding: 12px;
+}
+
+.styled-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.status {
+  font-weight: bold;
+}
+
+.status.active {
+  color: green;
+}
+
+.status.inactive {
+  color: red;
+}
+
+.btn-edit {
+  background: #4A90E2;
+  color: white;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  margin-right: 5px;
+}
+
+.btn-delete {
+  background: #d9534f;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+}
