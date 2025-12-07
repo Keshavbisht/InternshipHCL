@@ -379,6 +379,7 @@ def create_subprocess(request):
     process_id = request.data.get("process_id")
     subprocess_name = request.data.get("subprocess_name")
     status = request.data.get("status", "active")
+    link = request.data.get("link")
 
     if not process_id:
         return Response({"error": "process_id is required"}, status=400)
@@ -394,7 +395,8 @@ def create_subprocess(request):
     sub = SubProcess.objects.create(
         process=process,
         subprocess_name=subprocess_name,
-        status=status
+        status=status,
+        link=link
     )
 
     return Response({
@@ -420,7 +422,8 @@ def list_subprocesses(request):
             "status": s.status,
             "process_id": s.process.process_id,
             "process_name": s.process.process_name,
-            "created_at": s.created_at
+            "created_at": s.created_at,
+            "link": s.link
         })
 
     return Response(data, status=200)
@@ -433,10 +436,15 @@ def update_subprocess(request, id):
     except SubProcess.DoesNotExist:
         return Response({"error": "SubProcess not found"}, status=404)
 
+    # Update name & status
     sub.subprocess_name = request.data.get("subprocess_name", sub.subprocess_name)
     sub.status = request.data.get("status", sub.status)
 
-    # Optional: change process
+    # 🔥 NEW: Update link
+    if "link" in request.data:
+        sub.link = request.data.get("link")
+
+    # Change parent process (optional)
     new_process_id = request.data.get("process_id")
     if new_process_id:
         try:
@@ -447,7 +455,17 @@ def update_subprocess(request, id):
 
     sub.save()
 
-    return Response({"message": "SubProcess updated successfully"}, status=200)
+    return Response({
+        "message": "SubProcess updated successfully",
+        "subprocess": {
+            "subprocess_id": sub.subprocess_id,
+            "process_id": sub.process.process_id,
+            "subprocess_name": sub.subprocess_name,
+            "status": sub.status,
+            "link": sub.link
+        }
+    }, status=200)
+
 # DELETE SUBPROCESS VIEW
 @api_view(['DELETE'])
 @permission_classes([AllowAny])
@@ -465,34 +483,45 @@ def delete_subprocess(request, id):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_user_assignments(request, user_id):
-    """Get processes and subprocesses assigned to a specific user"""
     try:
         user = User.objects.get(id=user_id)
         extra = UserExtra.objects.filter(user=user).first()
-        
+
         if not extra:
-            return Response({
-                "assigned_processes": [],
-                "assigned_subprocesses": []
-            }, status=200)
-        
-        # Get full process and subprocess details
-        assigned_process_ids = extra.assigned_processes or []
-        assigned_subprocess_ids = extra.assigned_subprocesses or []
-        
-        processes = Process.objects.filter(process_id__in=assigned_process_ids)
-        subprocesses = SubProcess.objects.filter(subprocess_id__in=assigned_subprocess_ids)
-        
-        process_data = [{"process_id": p.process_id, "process_name": p.process_name} for p in processes]
-        subprocess_data = [{"subprocess_id": s.subprocess_id, "subprocess_name": s.subprocess_name} for s in subprocesses]
-        
-        return Response({
-            "assigned_processes": process_data,
-            "assigned_subprocesses": subprocess_data
-        }, status=200)
-        
+            return Response({"data": []}, status=200)
+
+        # Get IDs
+        process_ids = extra.assigned_processes or []
+        subprocess_ids = extra.assigned_subprocesses or []
+
+        # Fetch objects
+        processes = Process.objects.filter(process_id__in=process_ids)
+        subprocesses = SubProcess.objects.filter(subprocess_id__in=subprocess_ids)
+
+        data = []
+
+        for process in processes:
+            subs_for_process = subprocesses.filter(process=process)
+
+            formatted = {
+                "process_id": process.process_id,
+                "process_name": process.process_name,
+                "subprocesses": []
+            }
+
+            for s in subs_for_process:
+                formatted["subprocesses"].append({
+                    "name": s.subprocess_name,
+                    "link": getattr(s, "link", None)  # avoid error if link missing
+                })
+
+            data.append(formatted)
+
+        return Response({"data": data}, status=200)
+
     except User.DoesNotExist:
         return Response({"error": "User not found"}, status=404)
+
 
 
 # ASSIGN PROCESSES TO USER (Admin only)

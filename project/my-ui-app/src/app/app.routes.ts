@@ -6,6 +6,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { Process } from './process/process';
 import { Subprocess } from './subprocess/subprocess';
 import { LayoutComponent } from './layout/layout'; // 👈 Import Layout
+import { AssignedComponent } from './assigned/assigned';
 
 export const routes: Routes = [
   // Default redirect
@@ -48,6 +49,9 @@ export const routes: Routes = [
         path: 'subprocess',
         component: Subprocess,
         data: { title: 'SubProcess Management' }
+      },
+      { path: 'assigned', component: AssignedComponent ,
+        data: { title: 'Assigned SOP' }
       }
     ]
   },

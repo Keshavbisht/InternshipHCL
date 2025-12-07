@@ -1,0 +1,45 @@
+<div class="assigned-wrapper">
+  
+  <h2>My Assigned Work</h2>
+
+  <div class="assigned-table-wrapper">
+    <table class="assigned-table">
+      <thead>
+        <tr>
+          <th>Process</th>
+          <th>Subprocess</th>
+          <th>Link</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let row of assignedData">
+          
+          <td class="process-col">
+            {{ row.process_name }}
+          </td>
+
+          <td class="subprocess-col">
+            <div *ngFor="let s of row.subprocesses" class="sub-row">
+              {{ s.name }}
+            </div>
+          </td>
+
+          <td class="link-col">
+            <div *ngFor="let s of row.subprocesses" class="sub-row">
+              <button class="open-btn" (click)="openLink(s.link)">
+                Open
+              </button>
+            </div>
+          </td>
+
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="assignedData.length === 0" class="no-data">
+    No assigned processes yet.
+  </div>
+
+</div>

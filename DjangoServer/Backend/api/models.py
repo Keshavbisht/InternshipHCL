@@ -65,6 +65,7 @@ class SubProcess(models.Model):
     subprocess_name = models.CharField(max_length=200)
 
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
+    link = models.URLField(max_length=500, null=True, blank=True)
 
 
     created_at = models.DateTimeField(auto_now_add=True)

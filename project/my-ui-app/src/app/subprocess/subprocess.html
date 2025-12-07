@@ -25,11 +25,9 @@
           <select [(ngModel)]="selectedProcess" name="process" required>
             <option value="" disabled selected>Select Process</option>
 
-            <!-- ✔ This sends process_id -->
             <option *ngFor="let p of processes" [value]="p.process_id">
               {{ p.process_name }}
             </option>
-
           </select>
         </div>
       </div>
@@ -40,6 +38,15 @@
         <div class="input-wrapper">
           <input type="text" [(ngModel)]="subprocessName" name="subprocess_name"
                  placeholder="Enter subprocess name" required />
+        </div>
+      </div>
+
+      <!-- ⭐ NEW: SubProcess Link -->
+      <div class="input-group">
+        <label>SubProcess Link (URL)</label>
+        <div class="input-wrapper">
+          <input type="text" [(ngModel)]="subprocessLink" name="subprocess_link"
+                 placeholder="Paste PDF/Google Doc Link" />
         </div>
       </div>
 
@@ -80,6 +87,7 @@
           <th>Process</th>
           <th>SubProcess</th>
           <th>Status</th>
+          <th>Link</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -94,6 +102,12 @@
           <td>
             <span class="status active" *ngIf="sp.status === 'active'">● Active</span>
             <span class="status inactive" *ngIf="sp.status === 'inactive'">● Inactive</span>
+          </td>
+
+          <!-- ⭐ SHOW LINK -->
+          <td>
+            <a *ngIf="sp.link" [href]="sp.link" target="_blank">Open</a>
+            <span *ngIf="!sp.link">N/A</span>
           </td>
 
           <td>

@@ -17,8 +17,9 @@ export class Subprocess {
   processes: any[] = [];
   subprocesses: any[] = [];
 
-  selectedProcess: number | null = null;   // will store process_id
+  selectedProcess: number | null = null;  // process_id
   subprocessName: string = '';
+  subprocessLink: string = '';            // ⭐ NEW FIELD
   status: boolean = true;
 
   editingId: number | null = null;
@@ -33,7 +34,7 @@ export class Subprocess {
     this.loadSubProcesses();
   }
 
-  // 🔹 LOAD ALL PROCESSES (for dropdown)
+  // 🔹 LOAD PROCESSES
   loadProcesses() {
     this.http.get(`${this.apiBase}/process/list/`).subscribe({
       next: (res: any) => {
@@ -65,8 +66,9 @@ export class Subprocess {
     }
 
     const body = {
-      process_id: this.selectedProcess,   // ✔ send ID
+      process_id: this.selectedProcess,
       subprocess_name: this.subprocessName,
+      link: this.subprocessLink,              // ⭐ SEND LINK TO BACKEND
       status: this.status ? "active" : "inactive"
     };
 
@@ -94,11 +96,12 @@ export class Subprocess {
     }
   }
 
-  // 🔹 EDIT SUBPROCESS
+  // 🔹 EDIT SUBPROCESS (load into form)
   editSubProcess(item: any) {
     this.editingId = item.subprocess_id;
     this.selectedProcess = item.process_id;
     this.subprocessName = item.subprocess_name;
+    this.subprocessLink = item.link || "";            // ⭐ LOAD LINK FOR EDIT
     this.status = item.status === "active";
   }
 
@@ -120,6 +123,7 @@ export class Subprocess {
     this.editingId = null;
     this.selectedProcess = null;
     this.subprocessName = '';
+    this.subprocessLink = '';               // ⭐ CLEAR LINK
     this.status = true;
 
     setTimeout(() => {
