@@ -23,6 +23,9 @@ urlpatterns = [
     path('subprocess/list/', views.list_subprocesses),
     path('subprocess/<int:id>/update/', views.update_subprocess),
     path('subprocess/<int:id>/delete/', views.delete_subprocess),
+    
+    path('users/<int:user_id>/assignments/', views.get_user_assignments, name='get_user_assignments'),
+    path('users/<int:user_id>/assign/', views.assign_processes_to_user, name='assign_processes'),
 
 
 

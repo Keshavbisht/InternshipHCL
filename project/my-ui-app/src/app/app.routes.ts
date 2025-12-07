@@ -5,40 +5,56 @@ import { DashboardComponent } from './dashboard/dashboard';
 import { AuthGuard } from './guards/auth.guard';
 import { Process } from './process/process';
 import { Subprocess } from './subprocess/subprocess';
+import { LayoutComponent } from './layout/layout'; // 👈 Import Layout
 
 export const routes: Routes = [
+  // Default redirect
   { 
     path: '', 
     redirectTo: '/login', 
     pathMatch: 'full' 
   },
 
+  // Routes WITHOUT sidebar (Login & Register)
   { 
     path: 'login', 
     component: LoginComponent,
-    data: { title: 'Login' }   // 👈 ADDED
+    data: { title: 'Login' }
   },
 
   { 
     path: 'register', 
     component: Register,
-    data: { title: 'Create Account' }  // 👈 ADDED
+    data: { title: 'Create Account' }
   },
 
-   { path: 'dashboard',
-     component: DashboardComponent,
-     canActivate: [AuthGuard],
-    data: { title: 'DashBoard' }
-   },
-
-  { path: 'process',
-    component: Process, 
-    canActivate: [AuthGuard],
-    data: { title: 'Process Management' }
+  // Routes WITH sidebar (Wrapped in Layout Component)
+  {
+    path: '',
+    component: LayoutComponent,  // 👈 Layout wrapper
+    canActivate: [AuthGuard],    // 👈 Protect all child routes
+    children: [
+      { 
+        path: 'dashboard',
+        component: DashboardComponent,
+        data: { title: 'Dashboard' }
+      },
+      { 
+        path: 'process',
+        component: Process,
+        data: { title: 'Process Management' }
+      },
+      { 
+        path: 'subprocess',
+        component: Subprocess,
+        data: { title: 'SubProcess Management' }
+      }
+    ]
   },
-  { path: 'subprocess', 
-    component: Subprocess, 
-    canActivate: [AuthGuard],
-    data: { title: 'Process Management' }}
+
+  // Fallback route
+  { 
+    path: '**', 
+    redirectTo: '/login' 
+  }
 ];
-

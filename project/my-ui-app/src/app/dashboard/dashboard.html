@@ -66,6 +66,7 @@
 
       <td *ngIf="isAdmin">
         <button class="edit-btn" (click)="openEditModal(u)">Edit</button>
+        <button class="assign-btn" (click)="openAssignModal(u)">Assign</button>
         <button class="delete-btn" (click)="deleteUser(u.id)">Delete</button>
       </td>
     </tr>
@@ -141,3 +142,82 @@
     </div>
   </div>
 </div>
+
+<!-- ASSIGN MODAL -->
+<div class="modal-backdrop" *ngIf="showAssignModal">
+  <div class="modal-box assign-modal">
+
+    <h3>Assign Processes to {{ selectedUser?.first_name }} {{ selectedUser?.last_name }}</h3>
+
+    <!-- ========= PROCESSES SECTION ========= -->
+    <div class="assign-section">
+      <h4>📋 Processes</h4>
+
+      <!-- PROCESS SEARCH BAR -->
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search process..."
+        [(ngModel)]="processSearch"
+        (input)="filterProcesses()"
+      />
+
+      <div class="checkbox-group">
+        <label *ngFor="let process of filteredProcesses" class="checkbox-label">
+          <input
+            type="checkbox"
+            [value]="process.process_id"
+            [checked]="isProcessAssigned(process.process_id)"
+            (change)="toggleProcess(process.process_id)"
+          />
+          {{ process.process_name }}
+        </label>
+      </div>
+    </div>
+
+    <!-- ========= SUBPROCESSES SECTION ========= -->
+    <div class="assign-section">
+      <h4>🔧 SubProcesses</h4>
+
+      <!-- NO PROCESS SELECTED -->
+      <div *ngIf="selectedProcessIds.length === 0" class="no-subprocess-msg">
+        Select a process to view its subprocesses.
+      </div>
+
+      <!-- SUBPROCESS LIST -->
+      <div *ngIf="selectedProcessIds.length > 0">
+
+        <!-- SUBPROCESS SEARCH BAR -->
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search subprocess..."
+          [(ngModel)]="subprocessSearch"
+          (input)="filterSubprocessSearch()"
+        />
+
+        <div class="checkbox-group">
+          <label *ngFor="let subprocess of filteredSubprocesses" class="checkbox-label">
+            <input
+              type="checkbox"
+              [value]="subprocess.subprocess_id"
+              [checked]="isSubprocessAssigned(subprocess.subprocess_id)"
+              (change)="toggleSubprocess(subprocess.subprocess_id)"
+            />
+            {{ subprocess.subprocess_name }}
+            <span class="subprocess-parent">({{ subprocess.process_name }})</span>
+          </label>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ========= MODAL ACTION BUTTONS ========= -->
+    <div class="modal-actions">
+      <button class="cancel-btn" (click)="closeAssignModal()">Cancel</button>
+      <button class="save-btn" (click)="saveAssignments()">Save Assignments</button>
+    </div>
+
+  </div>
+</div>
+

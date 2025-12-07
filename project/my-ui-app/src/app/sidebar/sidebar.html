@@ -1,0 +1,27 @@
+<!-- SIDEBAR -->
+<div class="sidebar">
+  
+  <!-- Header with Image -->
+  <div class="sidebar-header">
+    <img src="assets/header-image.jpg" alt="Header" class="header-image">
+  </div>
+
+  <!-- Navigation Menu -->
+  <nav class="sidebar-nav">
+    <div 
+      *ngFor="let item of menuItems" 
+      class="menu-item"
+      [class.active]="isActive(item.route)"
+      (click)="navigateTo(item.route)"
+    >
+      <span class="menu-icon">{{ item.icon }}</span>
+      <span class="menu-label">{{ item.label }}</span>
+    </div>
+  </nav>
+
+  <!-- Footer -->
+  <div class="sidebar-footer">
+    <p>© Copyright HCL Technologies</p>
+  </div>
+
+</div>

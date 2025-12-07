@@ -460,3 +460,96 @@ def delete_subprocess(request, id):
     sub.delete()
 
     return Response({"message": "SubProcess deleted successfully"}, status=200)
+
+# GET USER ASSIGNMENTS
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_user_assignments(request, user_id):
+    """Get processes and subprocesses assigned to a specific user"""
+    try:
+        user = User.objects.get(id=user_id)
+        extra = UserExtra.objects.filter(user=user).first()
+        
+        if not extra:
+            return Response({
+                "assigned_processes": [],
+                "assigned_subprocesses": []
+            }, status=200)
+        
+        # Get full process and subprocess details
+        assigned_process_ids = extra.assigned_processes or []
+        assigned_subprocess_ids = extra.assigned_subprocesses or []
+        
+        processes = Process.objects.filter(process_id__in=assigned_process_ids)
+        subprocesses = SubProcess.objects.filter(subprocess_id__in=assigned_subprocess_ids)
+        
+        process_data = [{"process_id": p.process_id, "process_name": p.process_name} for p in processes]
+        subprocess_data = [{"subprocess_id": s.subprocess_id, "subprocess_name": s.subprocess_name} for s in subprocesses]
+        
+        return Response({
+            "assigned_processes": process_data,
+            "assigned_subprocesses": subprocess_data
+        }, status=200)
+        
+    except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=404)
+
+
+# ASSIGN PROCESSES TO USER (Admin only)
+@api_view(['POST'])
+@permission_classes([AllowAny])  # Change to IsAuthenticated + Admin check in production
+def assign_processes_to_user(request, user_id):
+    """Admin assigns processes and subprocesses to a user"""
+    try:
+        user = User.objects.get(id=user_id)
+        extra, created = UserExtra.objects.get_or_create(user=user)
+        
+        # Get arrays of IDs from request
+        process_ids = request.data.get("process_ids", [])
+        subprocess_ids = request.data.get("subprocess_ids", [])
+        
+        # Validate that processes exist
+        valid_processes = Process.objects.filter(process_id__in=process_ids).values_list('process_id', flat=True)
+        valid_subprocesses = SubProcess.objects.filter(subprocess_id__in=subprocess_ids).values_list('subprocess_id', flat=True)
+        
+        # Save assignments
+        extra.assigned_processes = list(valid_processes)
+        extra.assigned_subprocesses = list(valid_subprocesses)
+        extra.save()
+        
+        return Response({
+            "message": "Processes assigned successfully",
+            "assigned_processes": extra.assigned_processes,
+            "assigned_subprocesses": extra.assigned_subprocesses
+        }, status=200)
+        
+    except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=404)
+
+
+# UPDATE LIST_USERS to include assignments
+# REPLACE your existing list_users function with this:
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def list_users(request):
+    users = User.objects.all()
+    data = []
+
+    for user in users:
+        extra = UserExtra.objects.filter(user=user).first()
+
+        data.append({
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "phone": extra.phone if extra else None,
+            "status": extra.status if extra else None,
+            "role": extra.role if extra else "user",
+            # 👇 NEW: Include assigned processes
+            "assigned_processes": extra.assigned_processes if extra else [],
+            "assigned_subprocesses": extra.assigned_subprocesses if extra else []
+        })
+
+    return Response(data)

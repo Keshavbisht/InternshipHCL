@@ -18,9 +18,12 @@ export class DashboardComponent implements OnInit {
   paginatedUsers: any[] = [];
   loggedInUserId: number | null = null;
 
-
   searchText: string = '';
   isLoadingUsers: boolean = true;
+
+  // processSearch: string = "";
+  // subprocessSearch: string = "";
+
 
   // pagination
   currentPage: number = 1;
@@ -47,6 +50,13 @@ export class DashboardComponent implements OnInit {
     confirmPassword: ''
   };
 
+  // 👇 NEW: Assignment modal
+  showAssignModal: boolean = false;
+  allProcesses: any[] = [];
+  allSubprocesses: any[] = [];
+  selectedProcessIds: number[] = [];
+  selectedSubprocessIds: number[] = [];
+
   constructor(private http: HttpClient, private router: Router) {}
 
   ngOnInit(): void {
@@ -59,6 +69,8 @@ export class DashboardComponent implements OnInit {
     this.isAdmin = this.role === 'admin';
 
     this.loadUsers();
+    this.loadProcesses();
+    this.loadSubprocesses();
   }
 
   logout(): void {
@@ -81,6 +93,26 @@ export class DashboardComponent implements OnInit {
         this.isLoadingUsers = false;
         alert('Failed to load users');
       }
+    });
+  }
+
+  // --------- LOAD PROCESSES ---------
+  loadProcesses(): void {
+    this.http.get('http://127.0.0.1:8000/api/auth/process/list/').subscribe({
+      next: (res: any) => {
+        this.allProcesses = res;
+      },
+      error: (err) => console.error('Error loading processes:', err)
+    });
+  }
+
+  // --------- LOAD SUBPROCESSES ---------
+  loadSubprocesses(): void {
+    this.http.get('http://127.0.0.1:8000/api/auth/subprocess/list/').subscribe({
+      next: (res: any) => {
+        this.allSubprocesses = res;
+      },
+      error: (err) => console.error('Error loading subprocesses:', err)
     });
   }
 
@@ -232,26 +264,25 @@ export class DashboardComponent implements OnInit {
 
   // --------- DELETE USER ---------
   deleteUser(id: number) {
-  if (!this.isAdmin) return;
+    if (!this.isAdmin) return;
 
-  const loggedInUser = JSON.parse(localStorage.getItem("user") || "{}");
+    const loggedInUser = JSON.parse(localStorage.getItem("user") || "{}");
 
-  if (loggedInUser.id === id) {
-    alert("You cannot delete yourself.");
-    return;
+    if (loggedInUser.id === id) {
+      alert("You cannot delete yourself.");
+      return;
+    }
+
+    if (!confirm("Are you sure?")) return;
+
+    this.http.delete(`http://127.0.0.1:8000/api/auth/users/${id}/delete/`).subscribe({
+      next: () => {
+        alert("User deleted");
+        this.loadUsers();
+      },
+      error: () => alert("Delete failed")
+    });
   }
-
-  if (!confirm("Are you sure?")) return;
-
-  this.http.delete(`http://127.0.0.1:8000/api/auth/users/${id}/delete/`).subscribe({
-    next: () => {
-      alert("User deleted");
-      this.loadUsers();
-    },
-    error: () => alert("Delete failed")
-  });
-}
-
 
   // --------- TOGGLE STATUS (Active / Inactive) ---------
   toggleStatus(user: any): void {
@@ -277,27 +308,166 @@ export class DashboardComponent implements OnInit {
 
   // --------- CHANGE ROLE FROM TABLE DROPDOWN ---------
   changeRole(user: any, event: any) {
-  if (!this.isAdmin) return;
+    if (!this.isAdmin) return;
 
-  const loggedInUser = JSON.parse(localStorage.getItem("user") || "{}");
+    const loggedInUser = JSON.parse(localStorage.getItem("user") || "{}");
 
-  if (loggedInUser.id === user.id) {
-    alert("You cannot change your own role.");
-    event.target.value = user.role;  // reset dropdown
-    return;
+    if (loggedInUser.id === user.id) {
+      alert("You cannot change your own role.");
+      event.target.value = user.role;
+      return;
+    }
+
+    const newRole = event.target.value;
+
+    this.http.patch(`http://127.0.0.1:8000/api/auth/users/${user.id}/role/`, {
+      role: newRole
+    }).subscribe({
+      next: () => {
+        user.role = newRole;
+        alert("Role updated successfully!");
+      },
+      error: () => alert("Failed to update role")
+    });
   }
 
-  const newRole = event.target.value;
+  // ========== NEW: ASSIGNMENT FUNCTIONS ==========
 
-  this.http.patch(`http://127.0.0.1:8000/api/auth/users/${user.id}/role/`, {
-    role: newRole
-  }).subscribe({
-    next: () => {
-      user.role = newRole;
-      alert("Role updated successfully!");
-    },
-    error: () => alert("Failed to update role")
-  });
+// SEARCH FIELDS
+processSearch: string = "";
+subprocessSearch: string = "";
+
+// FILTERED LISTS
+filteredProcesses: any[] = [];
+filteredSubprocesses: any[] = [];
+
+// --------- OPEN ASSIGN MODAL ---------
+openAssignModal(user: any): void {
+  if (!this.isAdmin) return;
+
+  this.selectedUser = user;
+  this.showAssignModal = true;
+
+  // Load existing assignments
+  this.selectedProcessIds = user.assigned_processes || [];
+  this.selectedSubprocessIds = user.assigned_subprocesses || [];
+
+  // Initialize filtered lists
+  this.filteredProcesses = [...this.allProcesses];
+
+  this.filterSubprocesses(); // Filter subprocesses based on processes
 }
 
+// --------- CLOSE ASSIGN MODAL ---------
+closeAssignModal(): void {
+  this.showAssignModal = false;
+  this.selectedUser = null;
+
+  this.selectedProcessIds = [];
+  this.selectedSubprocessIds = [];
+  this.filteredProcesses = [];
+  this.filteredSubprocesses = [];
+
+  this.processSearch = "";
+  this.subprocessSearch = "";
+}
+
+// --------- CHECK IF PROCESS IS ASSIGNED ---------
+isProcessAssigned(processId: number): boolean {
+  return this.selectedProcessIds.includes(processId);
+}
+
+// --------- CHECK IF SUBPROCESS IS ASSIGNED ---------
+isSubprocessAssigned(subprocessId: number): boolean {
+  return this.selectedSubprocessIds.includes(subprocessId);
+}
+
+// --------- TOGGLE PROCESS SELECTION ---------
+toggleProcess(processId: number): void {
+  const index = this.selectedProcessIds.indexOf(processId);
+
+  if (index > -1) {
+    this.selectedProcessIds.splice(index, 1);
+  } else {
+    this.selectedProcessIds.push(processId);
+  }
+
+  this.filterSubprocesses();
+}
+
+// --------- FILTER PROCESSES (SEARCH) ---------
+filterProcesses(): void {
+  const term = this.processSearch.toLowerCase().trim();
+
+  if (!term) {
+    this.filteredProcesses = [...this.allProcesses];
+  } else {
+    this.filteredProcesses = this.allProcesses.filter(p =>
+      p.process_name.toLowerCase().includes(term)
+    );
+  }
+}
+
+// --------- FILTER SUBPROCESSES (BY PROCESS + SEARCH) ---------
+filterSubprocesses(): void {
+  const selected = new Set(this.selectedProcessIds);
+
+  // Base filtered by process selection
+  let baseList = this.allSubprocesses.filter(sp =>
+    selected.has(sp.process_id)
+  );
+
+  // Apply search filter if typed
+  if (this.subprocessSearch.trim()) {
+    const term = this.subprocessSearch.toLowerCase();
+    baseList = baseList.filter(sp =>
+      sp.subprocess_name.toLowerCase().includes(term)
+    );
+  }
+
+  this.filteredSubprocesses = baseList;
+}
+
+// --------- SUBPROCESS SEARCH ONLY ---------
+filterSubprocessSearch(): void {
+  this.filterSubprocesses();
+}
+
+// --------- TOGGLE SUBPROCESS SELECTION ---------
+toggleSubprocess(subprocessId: number): void {
+  const index = this.selectedSubprocessIds.indexOf(subprocessId);
+
+  if (index > -1) {
+    this.selectedSubprocessIds.splice(index, 1);
+  } else {
+    this.selectedSubprocessIds.push(subprocessId);
+  }
+}
+
+// --------- SAVE ASSIGNMENTS ---------
+saveAssignments(): void {
+  if (!this.selectedUser) return;
+
+  const payload = {
+    process_ids: this.selectedProcessIds,
+    subprocess_ids: this.selectedSubprocessIds
+  };
+
+  this.http
+    .post(
+      `http://127.0.0.1:8000/api/auth/users/${this.selectedUser.id}/assign/`,
+      payload
+    )
+    .subscribe({
+      next: () => {
+        alert("Assignments saved successfully!");
+        this.closeAssignModal();
+        this.loadUsers();
+      },
+      error: (err) => {
+        console.error("Assignment error:", err);
+        alert("Failed to save assignments");
+      }
+    });
+  }
 }
