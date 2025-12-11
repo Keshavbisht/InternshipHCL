@@ -24,6 +24,7 @@ class UserExtra(models.Model):
     
     assigned_processes = models.JSONField(default=list, blank=True, null=True)
     assigned_subprocesses = models.JSONField(default=list, blank=True, null=True)
+    assigned_objectives = models.JSONField(default=list, blank=True, null=True)
 
     def __str__(self):
         return self.user.username

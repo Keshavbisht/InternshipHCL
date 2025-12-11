@@ -465,46 +465,75 @@ def delete_subprocess(request, id):
 
 # GET USER ASSIGNMENTS
 @api_view(['GET'])
-@permission_classes([AllowAny])
 def get_user_assignments(request, user_id):
     try:
-        user = User.objects.get(id=user_id)
-        extra = UserExtra.objects.filter(user=user).first()
+        user_extra = UserExtra.objects.get(user_id=user_id)
+    except UserExtra.DoesNotExist:
+        return Response({"data": []})
 
-        if not extra:
-            return Response({"data": []}, status=200)
+    process_ids = user_extra.assigned_processes or []
+    subprocess_ids = user_extra.assigned_subprocesses or []
+    objective_ids = user_extra.assigned_objectives or []
 
-        # Get IDs
-        process_ids = extra.assigned_processes or []
-        subprocess_ids = extra.assigned_subprocesses or []
+    output = []
 
-        # Fetch objects
-        processes = Process.objects.filter(process_id__in=process_ids)
-        subprocesses = SubProcess.objects.filter(subprocess_id__in=subprocess_ids)
+    for pid in process_ids:
 
-        data = []
+        process = Process.objects.filter(process_id=pid).first()
+        if not process:
+            continue
 
-        for process in processes:
-            subs_for_process = subprocesses.filter(process=process)
+        subprocesses = SubProcess.objects.filter(
+            process_id=pid,
+            subprocess_id__in=subprocess_ids
+        )
 
-            formatted = {
-                "process_id": process.process_id,
-                "process_name": process.process_name,
-                "subprocesses": []
-            }
+        objective_list = []
 
-            for s in subs_for_process:
-                formatted["subprocesses"].append({
-                    "name": s.subprocess_name,
-                    "link": getattr(s, "link", None)  # avoid error if link missing
+        for sp in subprocesses:
+
+            objectives = Objective.objects.filter(
+                subprocess_id=sp.subprocess_id,
+                objective_id__in=objective_ids
+            )
+
+            for obj in objectives:
+
+                # ----- COLLECT ALL DOCUMENT LINKS -----
+                document_links = [
+                    request.build_absolute_uri(doc.file.url)
+                    for doc in obj.documents.all()
+                ]
+
+                # ----- COLLECT ALL VIDEO LINKS -----
+                video_links = [video.video_url for video in obj.videos.all()]
+
+                # ----- COLLECT ALL IMAGE LINKS -----
+                image_links = [
+                    request.build_absolute_uri(img.image.url)
+                    for img in obj.images.all()
+                ]
+
+                # ----- COMBINE THEM -----
+                all_links = {
+                    "documents": document_links,
+                    "videos": video_links,
+                    "images": image_links
+                }
+
+                objective_list.append({
+                    "objective_name": obj.objective_name,
+                    "subprocess_name": sp.subprocess_name,
+                    "links": all_links
                 })
 
-            data.append(formatted)
+        output.append({
+            "process_name": process.process_name,
+            "objectives": objective_list
+        })
 
-        return Response({"data": data}, status=200)
+    return Response({"data": output})
 
-    except User.DoesNotExist:
-        return Response({"error": "User not found"}, status=404)
 
 
 
@@ -512,7 +541,7 @@ def get_user_assignments(request, user_id):
 @api_view(['POST'])
 @permission_classes([AllowAny])  # Change to IsAuthenticated + Admin check in production
 def assign_processes_to_user(request, user_id):
-    """Admin assigns processes and subprocesses to a user"""
+    """Admin assigns processes, subprocesses, and objectives to a user"""
     try:
         user = User.objects.get(id=user_id)
         extra, created = UserExtra.objects.get_or_create(user=user)
@@ -520,20 +549,24 @@ def assign_processes_to_user(request, user_id):
         # Get arrays of IDs from request
         process_ids = request.data.get("process_ids", [])
         subprocess_ids = request.data.get("subprocess_ids", [])
+        objective_ids = request.data.get("objective_ids", [])
         
-        # Validate that processes exist
+        # Validate that processes, subprocesses, and objectives exist
         valid_processes = Process.objects.filter(process_id__in=process_ids).values_list('process_id', flat=True)
         valid_subprocesses = SubProcess.objects.filter(subprocess_id__in=subprocess_ids).values_list('subprocess_id', flat=True)
+        valid_objectives = Objective.objects.filter(objective_id__in=objective_ids).values_list('objective_id', flat=True)
         
         # Save assignments
         extra.assigned_processes = list(valid_processes)
         extra.assigned_subprocesses = list(valid_subprocesses)
+        extra.assigned_objectives = list(valid_objectives)
         extra.save()
         
         return Response({
-            "message": "Processes assigned successfully",
+            "message": "Assignments saved successfully",
             "assigned_processes": extra.assigned_processes,
-            "assigned_subprocesses": extra.assigned_subprocesses
+            "assigned_subprocesses": extra.assigned_subprocesses,
+            "assigned_objectives": extra.assigned_objectives
         }, status=200)
         
     except User.DoesNotExist:
@@ -560,9 +593,10 @@ def list_users(request):
             "phone": extra.phone if extra else None,
             "status": extra.status if extra else None,
             "role": extra.role if extra else "user",
-            # 👇 NEW: Include assigned processes
+            # 👇 NEW: Include assigned processes, subprocesses, and objectives
             "assigned_processes": extra.assigned_processes if extra else [],
-            "assigned_subprocesses": extra.assigned_subprocesses if extra else []
+            "assigned_subprocesses": extra.assigned_subprocesses if extra else [],
+            "assigned_objectives": extra.assigned_objectives if extra else []
         })
 
     return Response(data)

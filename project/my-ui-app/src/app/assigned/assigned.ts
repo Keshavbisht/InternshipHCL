@@ -14,7 +14,15 @@ export class AssignedComponent implements OnInit {
 
   assignedData: {
     process_name: string;
-    subprocesses: { name: string; link: string | null }[];
+    objectives: {
+      objective_name: string;
+      subprocess_name: string;
+      links: {
+        documents: string[];
+        videos: string[];
+        images: string[];
+      };
+    }[];
   }[] = [];
 
   constructor(private http: HttpClient, private router: Router) {}
@@ -32,19 +40,25 @@ export class AssignedComponent implements OnInit {
     this.http.get(`http://127.0.0.1:8000/api/auth/users/${userId}/assignments/`)
       .subscribe({
         next: (res: any) => {
-          
-          // Backend response structure:
+          // Backend now returns EXACTLY this structure:
           // {
           //   "data": [
           //     {
-          //       "process_name": "FINANCE",
-          //       "subprocesses": [
-          //          { "name": "Cash", "link": "https://..." }
+          //       "process_name": "IT",
+          //       "objectives": [
+          //         {
+          //           "objective_name": "...",
+          //           "subprocess_name": "...",
+          //           "links": {
+          //             "documents": [...],
+          //             "videos": [...],
+          //             "images": [...]
+          //           }
+          //         }
           //       ]
           //     }
           //   ]
           // }
-
           this.assignedData = res.data || [];
         },
         error: (err) => {
@@ -53,13 +67,4 @@ export class AssignedComponent implements OnInit {
         }
       });
   }
-
-  openLink(link: string | null) {
-    if (link) {
-      window.open(link, "_blank");
-    } else {
-      this.router.navigate(['/dashboard']);
-    }
-  }
-
 }

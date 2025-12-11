@@ -21,20 +21,16 @@ export class DashboardComponent implements OnInit {
   searchText: string = '';
   isLoadingUsers: boolean = true;
 
-  // processSearch: string = "";
-  // subprocessSearch: string = "";
-
-
-  // pagination
+  // Pagination
   currentPage: number = 1;
   itemsPerPage: number = 5;
   totalPages: number = 1;
 
-  // role & auth
+  // Role
   role: string = 'user';
   isAdmin: boolean = false;
 
-  // edit modal
+  // Edit modal
   showEditModal: boolean = false;
   selectedUser: any = null;
 
@@ -50,27 +46,43 @@ export class DashboardComponent implements OnInit {
     confirmPassword: ''
   };
 
-  // 👇 NEW: Assignment modal
+  // Assignment Modal
   showAssignModal: boolean = false;
+
   allProcesses: any[] = [];
   allSubprocesses: any[] = [];
+  allObjectives: any[] = [];
+
   selectedProcessIds: number[] = [];
   selectedSubprocessIds: number[] = [];
+  selectedObjectiveIds: number[] = [];
+
+  processSearch: string = "";
+  subprocessSearch: string = "";
+  objectiveSearch: string = "";
+
+  filteredProcesses: any[] = [];
+  filteredSubprocesses: any[] = [];
+  filteredObjectives: any[] = [];
 
   constructor(private http: HttpClient, private router: Router) {}
 
   ngOnInit(): void {
     const storedRole = localStorage.getItem('role');
     const userData = localStorage.getItem("user");
+
     if (userData) {
       this.loggedInUserId = JSON.parse(userData).id;
     }
+
     this.role = storedRole ? storedRole : 'user';
     this.isAdmin = this.role === 'admin';
 
+    // Load all main data
     this.loadUsers();
     this.loadProcesses();
     this.loadSubprocesses();
+    this.loadObjectives();  // REQUIRED for objectives to show
   }
 
   logout(): void {
@@ -78,7 +90,7 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  // --------- LOAD USERS ---------
+  // ----------- USERS -------------
   loadUsers(): void {
     this.isLoadingUsers = true;
     this.http.get('http://127.0.0.1:8000/api/auth/users/').subscribe({
@@ -96,7 +108,7 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  // --------- LOAD PROCESSES ---------
+  // ----------- PROCESSES -------------
   loadProcesses(): void {
     this.http.get('http://127.0.0.1:8000/api/auth/process/list/').subscribe({
       next: (res: any) => {
@@ -106,7 +118,7 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  // --------- LOAD SUBPROCESSES ---------
+  // ----------- SUBPROCESSES -------------
   loadSubprocesses(): void {
     this.http.get('http://127.0.0.1:8000/api/auth/subprocess/list/').subscribe({
       next: (res: any) => {
@@ -116,7 +128,19 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  // --------- SEARCH ---------
+  // ❗❗❗ THIS WAS MISSING → FIX OBJECTIVE NOT SHOWING
+  loadObjectives(): void {
+  this.http.get('http://127.0.0.1:8000/api/auth/objective/list/').subscribe({
+    next: (res: any) => {
+      this.allObjectives = res.data;   // <-- FIX HERE
+      console.log("Loaded Objectives:", this.allObjectives);
+    },
+    error: (err) => console.error('Error loading objectives:', err)
+  });
+}
+
+
+  // ----------- SEARCH USERS -------------
   filterUsers(): void {
     const txt = this.searchText.toLowerCase().trim();
 
@@ -124,22 +148,14 @@ export class DashboardComponent implements OnInit {
       this.filteredUsers = [...this.users];
     } else {
       this.filteredUsers = this.users.filter((u) => {
-        const firstName = (u.first_name || '').toLowerCase();
-        const lastName = (u.last_name || '').toLowerCase();
-        const username = (u.username || '').toLowerCase();
-        const email = (u.email || '').toLowerCase();
-        const phone = (u.phone || '').toString();
-        const status = (u.status || '').toLowerCase();
-        const role = (u.role || '').toLowerCase();
-
         return (
-          firstName.includes(txt) ||
-          lastName.includes(txt) ||
-          username.includes(txt) ||
-          email.includes(txt) ||
-          phone.includes(txt) ||
-          status.includes(txt) ||
-          role.includes(txt)
+          (u.first_name || '').toLowerCase().includes(txt) ||
+          (u.last_name || '').toLowerCase().includes(txt) ||
+          (u.username || '').toLowerCase().includes(txt) ||
+          (u.email || '').toLowerCase().includes(txt) ||
+          (u.phone || '').toString().includes(txt) ||
+          (u.status || '').toLowerCase().includes(txt) ||
+          (u.role || '').toLowerCase().includes(txt)
         );
       });
     }
@@ -148,10 +164,9 @@ export class DashboardComponent implements OnInit {
     this.updatePagination();
   }
 
-  // --------- PAGINATION ---------
+  // ----------- PAGINATION -------------
   updatePagination(): void {
-    this.totalPages =
-      Math.ceil(this.filteredUsers.length / this.itemsPerPage) || 1;
+    this.totalPages = Math.ceil(this.filteredUsers.length / this.itemsPerPage) || 1;
 
     const start = (this.currentPage - 1) * this.itemsPerPage;
     const end = start + this.itemsPerPage;
@@ -183,7 +198,7 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  // --------- OPEN EDIT MODAL ---------
+  // ----------- EDIT USER MODAL -------------
   openEditModal(user: any): void {
     if (!this.isAdmin) return;
 
@@ -203,10 +218,10 @@ export class DashboardComponent implements OnInit {
     };
   }
 
-  // --------- CLOSE MODAL ---------
   closeModal(): void {
     this.showEditModal = false;
     this.selectedUser = null;
+
     this.editForm = {
       first_name: '',
       last_name: '',
@@ -220,7 +235,6 @@ export class DashboardComponent implements OnInit {
     };
   }
 
-  // --------- UPDATE USER (SAVE IN MODAL) ---------
   updateUser(): void {
     if (!this.selectedUser) return;
 
@@ -262,7 +276,6 @@ export class DashboardComponent implements OnInit {
       });
   }
 
-  // --------- DELETE USER ---------
   deleteUser(id: number) {
     if (!this.isAdmin) return;
 
@@ -284,7 +297,6 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  // --------- TOGGLE STATUS (Active / Inactive) ---------
   toggleStatus(user: any): void {
     if (!this.isAdmin) return;
 
@@ -296,17 +308,11 @@ export class DashboardComponent implements OnInit {
         { status: newStatus }
       )
       .subscribe({
-        next: () => {
-          user.status = newStatus;
-        },
-        error: (err) => {
-          console.error('Status toggle error:', err);
-          alert('Failed to change status');
-        }
+        next: () => { user.status = newStatus; },
+        error: () => alert('Failed to change status')
       });
   }
 
-  // --------- CHANGE ROLE FROM TABLE DROPDOWN ---------
   changeRole(user: any, event: any) {
     if (!this.isAdmin) return;
 
@@ -331,130 +337,163 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  // ========== NEW: ASSIGNMENT FUNCTIONS ==========
+  // ---------------- ASSIGN MODAL ----------------------
 
-// SEARCH FIELDS
-processSearch: string = "";
-subprocessSearch: string = "";
+  openAssignModal(user: any): void {
+    if (!this.isAdmin) return;
 
-// FILTERED LISTS
-filteredProcesses: any[] = [];
-filteredSubprocesses: any[] = [];
+    this.selectedUser = user;
+    this.showAssignModal = true;
 
-// --------- OPEN ASSIGN MODAL ---------
-openAssignModal(user: any): void {
-  if (!this.isAdmin) return;
+    // Load existing assignments
+    this.selectedProcessIds = user.assigned_processes || [];
+    this.selectedSubprocessIds = user.assigned_subprocesses || [];
+    this.selectedObjectiveIds = user.assigned_objectives || [];
 
-  this.selectedUser = user;
-  this.showAssignModal = true;
-
-  // Load existing assignments
-  this.selectedProcessIds = user.assigned_processes || [];
-  this.selectedSubprocessIds = user.assigned_subprocesses || [];
-
-  // Initialize filtered lists
-  this.filteredProcesses = [...this.allProcesses];
-
-  this.filterSubprocesses(); // Filter subprocesses based on processes
-}
-
-// --------- CLOSE ASSIGN MODAL ---------
-closeAssignModal(): void {
-  this.showAssignModal = false;
-  this.selectedUser = null;
-
-  this.selectedProcessIds = [];
-  this.selectedSubprocessIds = [];
-  this.filteredProcesses = [];
-  this.filteredSubprocesses = [];
-
-  this.processSearch = "";
-  this.subprocessSearch = "";
-}
-
-// --------- CHECK IF PROCESS IS ASSIGNED ---------
-isProcessAssigned(processId: number): boolean {
-  return this.selectedProcessIds.includes(processId);
-}
-
-// --------- CHECK IF SUBPROCESS IS ASSIGNED ---------
-isSubprocessAssigned(subprocessId: number): boolean {
-  return this.selectedSubprocessIds.includes(subprocessId);
-}
-
-// --------- TOGGLE PROCESS SELECTION ---------
-toggleProcess(processId: number): void {
-  const index = this.selectedProcessIds.indexOf(processId);
-
-  if (index > -1) {
-    this.selectedProcessIds.splice(index, 1);
-  } else {
-    this.selectedProcessIds.push(processId);
-  }
-
-  this.filterSubprocesses();
-}
-
-// --------- FILTER PROCESSES (SEARCH) ---------
-filterProcesses(): void {
-  const term = this.processSearch.toLowerCase().trim();
-
-  if (!term) {
+    // Initialize filtered lists
     this.filteredProcesses = [...this.allProcesses];
-  } else {
-    this.filteredProcesses = this.allProcesses.filter(p =>
-      p.process_name.toLowerCase().includes(term)
+
+    this.filterSubprocesses();
+    this.filterObjectives();
+  }
+
+  closeAssignModal(): void {
+    this.showAssignModal = false;
+    this.selectedUser = null;
+
+    this.selectedProcessIds = [];
+    this.selectedSubprocessIds = [];
+    this.selectedObjectiveIds = [];
+
+    this.filteredProcesses = [];
+    this.filteredSubprocesses = [];
+    this.filteredObjectives = [];
+
+    this.processSearch = "";
+    this.subprocessSearch = "";
+    this.objectiveSearch = "";
+  }
+
+  // Checks
+  isProcessAssigned(id: number): boolean {
+    return this.selectedProcessIds.includes(id);
+  }
+
+  isSubprocessAssigned(id: number): boolean {
+    return this.selectedSubprocessIds.includes(id);
+  }
+
+  isObjectiveAssigned(id: number): boolean {
+    return this.selectedObjectiveIds.includes(id);
+  }
+
+  // TOGGLE PROCESS
+  toggleProcess(id: number): void {
+    const index = this.selectedProcessIds.indexOf(id);
+
+    if (index > -1) {
+      this.selectedProcessIds.splice(index, 1);
+    } else {
+      this.selectedProcessIds.push(id);
+    }
+
+    this.filterSubprocesses();
+  }
+
+  // PROCESS SEARCH
+  filterProcesses(): void {
+    const term = this.processSearch.toLowerCase().trim();
+
+    if (!term) {
+      this.filteredProcesses = [...this.allProcesses];
+    } else {
+      this.filteredProcesses = this.allProcesses.filter(p =>
+        p.process_name.toLowerCase().includes(term)
+      );
+    }
+  }
+
+  // SUBPROCESSES FILTER
+  filterSubprocesses(): void {
+    const selected = new Set(this.selectedProcessIds);
+
+    let baseList = this.allSubprocesses.filter(sp =>
+      selected.has(sp.process_id)
     );
+
+    if (this.subprocessSearch.trim()) {
+      const term = this.subprocessSearch.toLowerCase();
+      baseList = baseList.filter(sp =>
+        sp.subprocess_name.toLowerCase().includes(term)
+      );
+    }
+
+    this.filteredSubprocesses = baseList;
   }
-}
 
-// --------- FILTER SUBPROCESSES (BY PROCESS + SEARCH) ---------
-filterSubprocesses(): void {
-  const selected = new Set(this.selectedProcessIds);
+  // SEARCH SUBPROCESS
+  filterSubprocessSearch(): void {
+    this.filterSubprocesses();
+    this.filterObjectives();
+  }
 
-  // Base filtered by process selection
-  let baseList = this.allSubprocesses.filter(sp =>
-    selected.has(sp.process_id)
-  );
+  // FILTER OBJECTIVES
+  filterObjectives(): void {
+    const selectedSub = new Set(this.selectedSubprocessIds);
 
-  // Apply search filter if typed
-  if (this.subprocessSearch.trim()) {
-    const term = this.subprocessSearch.toLowerCase();
-    baseList = baseList.filter(sp =>
-      sp.subprocess_name.toLowerCase().includes(term)
+    let baseList = this.allObjectives.filter(obj =>
+      selectedSub.has(obj.subprocess_id)
     );
+
+    if (this.objectiveSearch.trim()) {
+      const term = this.objectiveSearch.toLowerCase();
+      baseList = baseList.filter(obj =>
+        obj.objective_name.toLowerCase().includes(term)
+      );
+    }
+
+    this.filteredObjectives = baseList;
   }
 
-  this.filteredSubprocesses = baseList;
-}
-
-// --------- SUBPROCESS SEARCH ONLY ---------
-filterSubprocessSearch(): void {
-  this.filterSubprocesses();
-}
-
-// --------- TOGGLE SUBPROCESS SELECTION ---------
-toggleSubprocess(subprocessId: number): void {
-  const index = this.selectedSubprocessIds.indexOf(subprocessId);
-
-  if (index > -1) {
-    this.selectedSubprocessIds.splice(index, 1);
-  } else {
-    this.selectedSubprocessIds.push(subprocessId);
+  filterObjectiveSearch(): void {
+    this.filterObjectives();
   }
-}
 
-// --------- SAVE ASSIGNMENTS ---------
-saveAssignments(): void {
-  if (!this.selectedUser) return;
+  // TOGGLE SUBPROCESS
+  toggleSubprocess(id: number): void {
+    const index = this.selectedSubprocessIds.indexOf(id);
 
-  const payload = {
-    process_ids: this.selectedProcessIds,
-    subprocess_ids: this.selectedSubprocessIds
-  };
+    if (index > -1) {
+      this.selectedSubprocessIds.splice(index, 1);
+    } else {
+      this.selectedSubprocessIds.push(id);
+    }
 
-  this.http
-    .post(
+    this.filterObjectives();
+  }
+
+  // TOGGLE OBJECTIVE
+  toggleObjective(id: number): void {
+    const index = this.selectedObjectiveIds.indexOf(id);
+
+    if (index > -1) {
+      this.selectedObjectiveIds.splice(index, 1);
+    } else {
+      this.selectedObjectiveIds.push(id);
+    }
+  }
+
+  // SAVE ASSIGNMENTS
+  saveAssignments(): void {
+    if (!this.selectedUser) return;
+
+    const payload = {
+      process_ids: this.selectedProcessIds,
+      subprocess_ids: this.selectedSubprocessIds,
+      objective_ids: this.selectedObjectiveIds
+    };
+
+    this.http.post(
       `http://127.0.0.1:8000/api/auth/users/${this.selectedUser.id}/assign/`,
       payload
     )

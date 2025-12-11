@@ -41,14 +41,6 @@
         </div>
       </div>
 
-      <!-- ⭐ NEW: SubProcess Link -->
-      <div class="input-group">
-        <label>SubProcess Link (URL)</label>
-        <div class="input-wrapper">
-          <input type="text" [(ngModel)]="subprocessLink" name="subprocess_link"
-                 placeholder="Paste PDF/Google Doc Link" />
-        </div>
-      </div>
 
       <!-- Status -->
       <div class="input-group checkbox-row">
@@ -87,7 +79,7 @@
           <th>Process</th>
           <th>SubProcess</th>
           <th>Status</th>
-          <th>Link</th>
+
           <th>Actions</th>
         </tr>
       </thead>
@@ -104,11 +96,7 @@
             <span class="status inactive" *ngIf="sp.status === 'inactive'">● Inactive</span>
           </td>
 
-          <!-- ⭐ SHOW LINK -->
-          <td>
-            <a *ngIf="sp.link" [href]="sp.link" target="_blank">Open</a>
-            <span *ngIf="!sp.link">N/A</span>
-          </td>
+          
 
           <td>
             <button class="btn-edit" (click)="editSubProcess(sp)">Edit</button>

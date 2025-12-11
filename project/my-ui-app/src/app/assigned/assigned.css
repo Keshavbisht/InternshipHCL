@@ -1,67 +1,59 @@
 .assigned-wrapper {
-  max-width: 850px;
-  margin: 30px auto;
+  max-width: 1100px;
+  margin: auto;
   padding: 20px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-h2 {
+.page-title {
   text-align: center;
-  margin-bottom: 20px;
-  font-size: 26px;
-  font-weight: 600;
+  font-size: 30px;
+  margin-bottom: 10px;
+  font-weight: bold;
 }
 
-table {
+.sub-title {
+  text-align: center;
+  margin: 20px 0;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.assigned-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-th, td {
-  padding: 12px 15px;
+.assigned-table th {
+  background: #3f51b5;
+  color: white;
+  padding: 12px;
   text-align: left;
   font-size: 16px;
 }
 
-th {
-  background: #f4f6f9;
-  font-weight: bold;
-  font-size: 17px;
+.assigned-table td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  vertical-align: top;
 }
 
-tr:nth-child(even) {
-  background: #fafafa;
+.assigned-table tr:hover {
+  background-color: #f9f9f9;
 }
 
-.subprocess-list {
-  list-style: none;
-  padding: 0;
+ul {
+  padding-left: 18px;
   margin: 0;
 }
 
-.subprocess-list li {
-  font-size: 16px;         /* 🔥 SAME SIZE AS PROCESS NAME */
-  margin-bottom: 4px;
-  font-weight: 500;        /* 🔥 MAKES IT CLEARER */
-  color: #021e62;
-}
-
-.open-link {
+a {
+  color: #0066cc;
   text-decoration: none;
-  color: #007bff;
-  font-weight: 600;
 }
 
-.open-link:hover {
+a:hover {
   text-decoration: underline;
-}
-
-.no-data {
-  text-align: center;
-  padding: 20px;
-  font-size: 18px;
-  color: #777;v
 }

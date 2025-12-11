@@ -212,6 +212,43 @@
       </div>
     </div>
 
+    <!-- ========= OBJECTIVES SECTION ========= -->
+    <div class="assign-section">
+      <h4>🎯 Objectives</h4>
+
+      <!-- NO SUBPROCESS SELECTED -->
+      <div *ngIf="selectedSubprocessIds.length === 0" class="no-subprocess-msg">
+        Select subprocesses to view their objectives.
+      </div>
+
+      <!-- OBJECTIVE LIST -->
+      <div *ngIf="selectedSubprocessIds.length > 0">
+
+        <!-- OBJECTIVE SEARCH BAR -->
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search objective..."
+          [(ngModel)]="objectiveSearch"
+          (input)="filterObjectiveSearch()"
+        />
+
+        <div class="checkbox-group">
+          <label *ngFor="let objective of filteredObjectives" class="checkbox-label">
+            <input
+              type="checkbox"
+              [value]="objective.objective_id"
+              [checked]="isObjectiveAssigned(objective.objective_id)"
+              (change)="toggleObjective(objective.objective_id)"
+            />
+            {{ objective.objective_name }}
+            <span class="subprocess-parent">({{ objective.subprocess_name }})</span>
+          </label>
+        </div>
+
+      </div>
+    </div>
+
     <!-- ========= MODAL ACTION BUTTONS ========= -->
     <div class="modal-actions">
       <button class="cancel-btn" (click)="closeAssignModal()">Cancel</button>
