@@ -75,3 +75,89 @@ class SubProcess(models.Model):
         return f"{self.process.process_name} → {self.subprocess_name}"
 
 
+class Objective(models.Model):
+    objective_id = models.AutoField(primary_key=True)
+
+    STATUS_CHOICES = (
+        ('active', 'Active'),
+        ('inactive', 'Inactive'),
+    )
+
+    # Link to Process
+    process = models.ForeignKey(
+        Process,
+        on_delete=models.CASCADE,
+        related_name="objectives"
+    )
+
+    # Link to SubProcess
+    subprocess = models.ForeignKey(
+        SubProcess,
+        on_delete=models.CASCADE,
+        related_name="objectives"
+    )
+
+    objective_name = models.CharField(max_length=255)
+
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.process.process_name} → {self.subprocess.subprocess_name} → {self.objective_name}"
+
+class Document(models.Model):
+    document_id = models.AutoField(primary_key=True)
+
+    objective = models.ForeignKey(
+        Objective,
+        on_delete=models.CASCADE,
+        related_name="documents"
+    )
+
+    title = models.CharField(max_length=255)
+    file = models.FileField(upload_to="documents/")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Document: {self.title} ({self.objective.objective_name})"
+
+class Video(models.Model):
+    video_id = models.AutoField(primary_key=True)
+
+    objective = models.ForeignKey(
+        Objective,
+        on_delete=models.CASCADE,
+        related_name="videos"
+    )
+
+    title = models.CharField(max_length=255)
+    video_url = models.URLField(max_length=500)  # YouTube/Drive/Streaming URL
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Video: {self.title} ({self.objective.objective_name})"
+
+
+class Image(models.Model):
+    image_id = models.AutoField(primary_key=True)
+
+    objective = models.ForeignKey(
+        Objective,
+        on_delete=models.CASCADE,
+        related_name="images"
+    )
+
+    title = models.CharField(max_length=255)
+    image = models.ImageField(upload_to="images/")  # For image file uploads
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Image: {self.title} ({self.objective.objective_name})"
+
+
+

@@ -48,6 +48,7 @@ export class SidebarComponent implements OnInit {
       { label: 'Home', icon: '🏠', route: '/dashboard' },
       { label: 'Process Master', icon: '📋', route: '/process' },
       { label: 'SubProcess Master', icon: '🔧', route: '/subprocess' },
+      { label: 'Objective Master', icon: '🎯', route: '/objective' },
       { label: 'Assigned', icon: '📌', route: '/assigned' }
     ];
   } else {

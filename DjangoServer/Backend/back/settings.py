@@ -133,17 +133,51 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
+# Media files (User uploaded files)
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # CORS Settings
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:4200",
+# For development: Allow all localhost ports (change to specific origins in production)
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins in development
+else:
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:4200",
+        "http://127.0.0.1:4200",
+        "http://localhost:55092",
+        "http://127.0.0.1:55092",
+    ]
+
+CORS_ALLOW_CREDENTIALS = True
+
+# Allow all HTTP methods
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
 ]
 
-CORS_ALLOW_CREDENTIALS = True  # ADD THIS
+# Allow all headers
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
 
 # REST Framework Settings - ADD THIS ENTIRE BLOCK
 REST_FRAMEWORK = {

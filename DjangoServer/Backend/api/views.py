@@ -8,7 +8,14 @@ from .serializers import LoginSerializer, RegisterSerializer, UserSerializer
 from django.contrib.auth.models import User
 from api.models import UserExtra
 
-from api.models import Process
+# from api.models import Process
+
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.decorators import parser_classes
+from django.shortcuts import get_object_or_404
+
+from api.models import Process, SubProcess, Objective, Document, Video, Image
+
 
 #-------------------------***********-----------------------
 # Login code before adding role - 4 dec - 9 am
@@ -94,29 +101,6 @@ def profile_view(request):
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
 
-
-# ✅ NEW FUNCTION — Return User + UserExtra merged
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def list_users(request):
-    users = User.objects.all()
-    data = []
-
-    for user in users:
-        extra = UserExtra.objects.filter(user=user).first()
-
-        data.append({
-            "id": user.id,
-            "username": user.username,
-            "email": user.email,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "phone": extra.phone if extra else None,
-            "status": extra.status if extra else None,
-            "role": extra.role if extra else "user"
-        })
-
-    return Response(data)
 @api_view(['DELETE'])
 @permission_classes([AllowAny])  # Change to IsAuthenticated in production
 def delete_user(request, id):
@@ -582,3 +566,218 @@ def list_users(request):
         })
 
     return Response(data)
+
+# ---------------------------------OBJECTIVE CRUD---------------------------------------------------------------------------------------------------------
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def create_objective(request):
+    process_id = request.data.get("process_id")
+    subprocess_id = request.data.get("subprocess_id")
+    objective_name = request.data.get("objective_name")
+    status = request.data.get("status", "active")
+
+    if not (process_id and subprocess_id and objective_name):
+        return Response({"error": "process_id, subprocess_id and objective_name are required"}, status=400)
+
+    process = get_object_or_404(Process, process_id=process_id)
+    subprocess = get_object_or_404(SubProcess, subprocess_id=subprocess_id)
+
+    obj = Objective.objects.create(
+        process=process,
+        subprocess=subprocess,
+        objective_name=objective_name,
+        status=status
+    )
+
+    return Response({
+        "message": "Objective created successfully",
+        "objective": {
+            "id": obj.objective_id,
+            "name": obj.objective_name
+        }
+    }, status=201)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def list_objectives(request):
+    objectives = Objective.objects.all().order_by('-created_at')
+
+    data = []
+    for obj in objectives:
+        data.append({
+            "objective_id": obj.objective_id,
+            "objective_name": obj.objective_name,
+            "process_id": obj.process.process_id,
+            "process_name": obj.process.process_name,
+            "subprocess_id": obj.subprocess.subprocess_id,
+            "subprocess_name": obj.subprocess.subprocess_name,
+            "status": obj.status
+        })
+
+    return Response({"data": data}, status=200)
+
+#UPDATE OBJECTIVE VIEW
+@api_view(['PUT'])
+@permission_classes([AllowAny])
+def update_objective(request, id):
+    obj = get_object_or_404(Objective, objective_id=id)
+
+    obj.objective_name = request.data.get("objective_name", obj.objective_name)
+    obj.status = request.data.get("status", obj.status)
+
+    # Optional: update process/subprocess
+    new_process = request.data.get("process_id")
+    new_sub = request.data.get("subprocess_id")
+
+    if new_process:
+        obj.process = get_object_or_404(Process, process_id=new_process)
+    if new_sub:
+        obj.subprocess = get_object_or_404(SubProcess, subprocess_id=new_sub)
+
+    obj.save()
+
+    return Response({"message": "Objective updated successfully"}, status=200)
+
+@api_view(['DELETE'])
+@permission_classes([AllowAny])
+def delete_objective(request, id):
+    obj = get_object_or_404(Objective, objective_id=id)
+    obj.delete()
+    return Response({"message": "Objective deleted successfully"}, status=200)
+
+# ---------------------------------DOCUMENT CRUD---------------------------------------------------------------------------------------------------------
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@parser_classes([MultiPartParser, FormParser])
+def upload_document(request):
+    objective_id = request.data.get("objective_id")
+    file = request.FILES.get("file")
+    title = request.data.get("title")
+
+    if not (objective_id and file):
+        return Response({"error": "objective_id and file are required"}, status=400)
+
+    objective = get_object_or_404(Objective, objective_id=objective_id)
+
+    doc = Document.objects.create(
+        objective=objective,
+        title=title or file.name,
+        file=file
+    )
+
+    return Response({
+        "message": "Document uploaded",
+        "document_id": doc.document_id
+    }, status=201)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def list_documents(request, objective_id):
+    documents = Document.objects.filter(objective_id=objective_id)
+
+    data = [{
+        "document_id": d.document_id,
+        "title": d.title,
+        "file_url": d.file.url
+    } for d in documents]
+
+    return Response({"documents": data}, status=200)
+
+@api_view(['DELETE'])
+@permission_classes([AllowAny])
+def delete_document(request, id):
+    doc = get_object_or_404(Document, document_id=id)
+    doc.delete()
+    return Response({"message": "Document deleted"}, status=200)
+
+
+# ---------------------------------VIDEO CRUD---------------------------------------------------------------------------------------------------------
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def create_video(request):
+    objective_id = request.data.get("objective_id")
+    title = request.data.get("title")
+    video_url = request.data.get("video_url")
+
+    if not (objective_id and video_url):
+        return Response({"error": "objective_id and video_url are required"}, status=400)
+
+    objective = get_object_or_404(Objective, objective_id=objective_id)
+
+    video = Video.objects.create(
+        objective=objective,
+        title=title or "Untitled Video",
+        video_url=video_url
+    )
+
+    return Response({"message": "Video added", "id": video.video_id}, status=201)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def list_videos(request, objective_id):
+    videos = Video.objects.filter(objective_id=objective_id)
+
+    data = [{
+        "video_id": v.video_id,
+        "title": v.title,
+        "video_url": v.video_url
+    } for v in videos]
+
+    return Response({"videos": data}, status=200)
+
+
+@api_view(['DELETE'])
+@permission_classes([AllowAny])
+def delete_video(request, id):
+    video = get_object_or_404(Video, video_id=id)
+    video.delete()
+    return Response({"message": "Video deleted"}, status=200)
+
+
+# ---------------------------------IMAGE CRUD---------------------------------------------------------------------------------------------------------
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@parser_classes([MultiPartParser, FormParser])
+def upload_image(request):
+    objective_id = request.data.get("objective_id")
+    image_file = request.FILES.get("image")
+    title = request.data.get("title")
+
+    if not (objective_id and image_file):
+        return Response({"error": "objective_id and image are required"}, status=400)
+
+    objective = get_object_or_404(Objective, objective_id=objective_id)
+
+    img = Image.objects.create(
+        objective=objective,
+        title=title or image_file.name,
+        image=image_file
+    )
+
+    return Response({
+        "message": "Image uploaded successfully",
+        "image_id": img.image_id,
+        "image_url": img.image.url if img.image else None
+    }, status=201)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def list_images(request, objective_id):
+    images = Image.objects.filter(objective_id=objective_id)
+
+    data = [{
+        "image_id": img.image_id,
+        "title": img.title,
+        "image_url": img.image.url if img.image else None
+    } for img in images]
+
+    return Response({"images": data}, status=200)
+
+@api_view(['DELETE'])
+@permission_classes([AllowAny])
+def delete_image(request, id):
+    img = get_object_or_404(Image, image_id=id)
+    img.delete()
+    return Response({"message": "Image deleted successfully"}, status=200)

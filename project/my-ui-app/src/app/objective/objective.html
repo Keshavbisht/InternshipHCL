@@ -1,0 +1,241 @@
+<div class="objective-wrapper">
+  
+  <!-- OBJECTIVE FORM -->
+  <div class="objective-card">
+    <div class="header-icon">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+    </div>
+
+    <h2>{{ editingId ? 'Edit Objective' : 'Create Objective' }}</h2>
+    <p class="subtitle">
+      {{ editingId ? 'Update objective below' : 'Add a new objective' }}
+    </p>
+
+    <div *ngIf="successMessage" class="alert success">{{ successMessage }}</div>
+    <div *ngIf="errorMessage" class="alert error">{{ errorMessage }}</div>
+
+    <form (ngSubmit)="saveObjective()">
+      <!-- Process Dropdown -->
+      <div class="input-group">
+        <label>Select Process *</label>
+        <div class="input-wrapper">
+          <select [(ngModel)]="selectedProcess" name="process" required (change)="selectedSubprocess = null">
+            <option value="" disabled selected>Select Process</option>
+            <option *ngFor="let p of processes" [value]="p.process_id">
+              {{ p.process_name }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- SubProcess Dropdown -->
+      <div class="input-group">
+        <label>Select SubProcess *</label>
+        <div class="input-wrapper">
+          <select [(ngModel)]="selectedSubprocess" name="subprocess" required [disabled]="!selectedProcess">
+            <option value="" disabled selected>
+              {{ selectedProcess ? (getFilteredSubprocesses().length === 0 ? 'No subprocesses found' : 'Select SubProcess') : 'Select Process first' }}
+            </option>
+            <option *ngFor="let sp of getFilteredSubprocesses()" [value]="sp.subprocess_id">
+              {{ sp.subprocess_name }}
+            </option>
+          </select>
+        </div>
+        <small *ngIf="selectedProcess && getFilteredSubprocesses().length === 0" class="help-text" style="color: #dc3545; margin-top: 5px; display: block;">
+          No subprocesses found for the selected process.
+        </small>
+      </div>
+
+      <!-- Objective Name -->
+      <div class="input-group">
+        <label>Objective Name *</label>
+        <div class="input-wrapper">
+          <input type="text" [(ngModel)]="objectiveName" name="objective_name" placeholder="Enter objective name" required />
+        </div>
+      </div>
+
+      <!-- Status -->
+      <div class="input-group checkbox-row">
+        <label>Status</label>
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="status" name="status" />
+          <span>Active</span>
+        </label>
+      </div>
+
+      <!-- Buttons -->
+      <div class="button-group">
+        <button class="btn-primary" type="submit">
+          {{ editingId ? 'Update Objective' : 'Create Objective' }}
+        </button>
+        <button class="btn-cancel" type="button" (click)="clearObjectiveForm()">Clear</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- OBJECTIVES TABLE -->
+  <div class="table-wrapper">
+    <div class="table-card">
+      <h3 class="table-title">Objectives List</h3>
+      <table class="styled-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Process</th>
+            <th>SubProcess</th>
+            <th>Objective Name</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let obj of objectives">
+            <td>{{ obj.objective_id }}</td>
+            <td>{{ obj.process_name }}</td>
+            <td>{{ obj.subprocess_name }}</td>
+            <td>{{ obj.objective_name }}</td>
+            <td>
+              <span class="status active" *ngIf="obj.status === 'active'">● Active</span>
+              <span class="status inactive" *ngIf="obj.status === 'inactive'">● Inactive</span>
+            </td>
+            <td>
+              <button class="btn-edit" (click)="editObjective(obj)">Edit</button>
+              <button class="btn-delete" (click)="deleteObjective(obj.objective_id)">Delete</button>
+              <button class="btn-view" (click)="selectObjective(obj.objective_id)">Manage Media</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MEDIA MANAGEMENT SECTION -->
+  <div *ngIf="selectedObjectiveId" class="media-wrapper">
+    <div class="media-card">
+      <h3>Manage Media for Objective #{{ selectedObjectiveId }}</h3>
+      
+      <!-- Tabs -->
+      <div class="tabs">
+        <button 
+          class="tab-btn" 
+          [class.active]="activeTab === 'documents'"
+          (click)="activeTab = 'documents'">
+          📄 Documents
+        </button>
+        <button 
+          class="tab-btn" 
+          [class.active]="activeTab === 'videos'"
+          (click)="activeTab = 'videos'">
+          🎥 Videos
+        </button>
+        <button 
+          class="tab-btn" 
+          [class.active]="activeTab === 'images'"
+          (click)="activeTab = 'images'">
+          🖼️ Images
+        </button>
+      </div>
+
+      <!-- DOCUMENTS TAB -->
+      <div *ngIf="activeTab === 'documents'" class="tab-content">
+        <div class="upload-section">
+          <h4>Upload Document</h4>
+          <div class="upload-form">
+            <div class="input-group">
+              <label>Document Title (Optional)</label>
+              <input type="text" [(ngModel)]="documentTitle" placeholder="Enter document title" />
+            </div>
+            <div class="input-group">
+              <label>Select File *</label>
+              <input type="file" name="document" (change)="onDocumentFileSelected($event)" accept=".pdf,.doc,.docx,.txt" />
+            </div>
+            <button class="btn-primary" (click)="uploadDocument()">Upload Document</button>
+          </div>
+        </div>
+
+        <div class="media-list">
+          <h4>Documents ({{ documents.length }})</h4>
+          <div *ngIf="documents.length === 0" class="no-media">No documents uploaded yet.</div>
+          <div *ngFor="let doc of documents" class="media-item">
+            <div class="media-info">
+              <strong>{{ doc.title }}</strong>
+              <a [href]="getFullDocumentUrl(doc.file_url)" target="_blank" class="view-link">View</a>
+            </div>
+            <button class="btn-delete-small" (click)="deleteDocument(doc.document_id)">Delete</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIDEOS TAB -->
+      <div *ngIf="activeTab === 'videos'" class="tab-content">
+        <div class="upload-section">
+          <h4>Add Video</h4>
+          <div class="upload-form">
+            <div class="input-group">
+              <label>Video Title (Optional)</label>
+              <input type="text" [(ngModel)]="videoTitle" placeholder="Enter video title" />
+            </div>
+            <div class="input-group">
+              <label>Video URL *</label>
+              <input type="url" [(ngModel)]="videoUrl" placeholder="https://youtube.com/watch?v=..." />
+            </div>
+            <button class="btn-primary" (click)="createVideo()">Add Video</button>
+          </div>
+        </div>
+
+        <div class="media-list">
+          <h4>Videos ({{ videos.length }})</h4>
+          <div *ngIf="videos.length === 0" class="no-media">No videos added yet.</div>
+          <div *ngFor="let video of videos" class="media-item">
+            <div class="media-info">
+              <strong>{{ video.title }}</strong>
+              <a [href]="video.video_url" target="_blank" class="view-link">Watch</a>
+            </div>
+            <button class="btn-delete-small" (click)="deleteVideo(video.video_id)">Delete</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- IMAGES TAB -->
+      <div *ngIf="activeTab === 'images'" class="tab-content">
+        <div class="upload-section">
+          <h4>Upload Image</h4>
+          <div class="upload-form">
+            <div class="input-group">
+              <label>Image Title (Optional)</label>
+              <input type="text" [(ngModel)]="imageTitle" placeholder="Enter image title" />
+            </div>
+            <div class="input-group">
+              <label>Select Image *</label>
+              <input type="file" name="image" (change)="onImageFileSelected($event)" accept="image/*" />
+            </div>
+            <button class="btn-primary" (click)="uploadImage()">Upload Image</button>
+          </div>
+        </div>
+
+        <div class="media-list">
+          <h4>Images ({{ images.length }})</h4>
+          <div *ngIf="images.length === 0" class="no-media">No images uploaded yet.</div>
+          <div class="images-grid">
+            <div *ngFor="let img of images" class="image-item">
+              <img [src]="getFullImageUrl(img.image_url)" [alt]="img.title" />
+              <div class="image-overlay">
+                <strong>{{ img.title }}</strong>
+                <div class="image-actions">
+                  <a [href]="getFullImageUrl(img.image_url)" target="_blank" class="view-link">View</a>
+                  <button class="btn-delete-small" (click)="deleteImage(img.image_id)">Delete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-cancel" (click)="clearMedia()" style="margin-top: 20px;">Close Media Manager</button>
+    </div>
+  </div>
+
+</div>
+
