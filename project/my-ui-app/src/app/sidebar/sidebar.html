@@ -1,26 +1,43 @@
 <!-- SIDEBAR -->
-<div class="sidebar">
-  
-  <!-- Header with Image -->
+<div class="sidebar" [class.collapsed]="isCollapsed">
+
+  <!-- ================= HEADER ================= -->
   <div class="sidebar-header">
-    <img src="assets/header-image.jpg" alt="Header" class="header-image">
+    <button class="toggle-btn" (click)="toggleSidebar()">
+      ☰
+    </button>
+
+    <!-- Title visible only when expanded -->
+    <span class="sidebar-title" *ngIf="!isCollapsed">
+      Dashboard
+    </span>
   </div>
 
-  <!-- Navigation Menu -->
+  <!-- ================= NAVIGATION ================= -->
   <nav class="sidebar-nav">
-    <div 
-      *ngFor="let item of menuItems" 
+
+    <div
+      *ngFor="let item of menuItems"
       class="menu-item"
       [class.active]="isActive(item.route)"
       (click)="navigateTo(item.route)"
+      [title]="isCollapsed ? item.label : ''"
     >
-      <span class="menu-icon">{{ item.icon }}</span>
-      <span class="menu-label">{{ item.label }}</span>
+      <!-- Icon always visible -->
+      <span class="menu-icon">
+        {{ item.icon }}
+      </span>
+
+      <!-- Label hidden when collapsed -->
+      <span class="menu-label" *ngIf="!isCollapsed">
+        {{ item.label }}
+      </span>
     </div>
+
   </nav>
 
-  <!-- Footer -->
-  <div class="sidebar-footer">
+  <!-- ================= FOOTER ================= -->
+  <div class="sidebar-footer" *ngIf="!isCollapsed">
     <p>© Keshav Bisht</p>
   </div>
 

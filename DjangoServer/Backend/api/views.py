@@ -646,7 +646,12 @@ def list_objectives(request):
             "process_name": obj.process.process_name,
             "subprocess_id": obj.subprocess.subprocess_id,
             "subprocess_name": obj.subprocess.subprocess_name,
-            "status": obj.status
+            "status": obj.status,
+
+            # Correct media count fields
+            "document_count": obj.documents.count(),
+            "video_count": obj.videos.count(),
+            "image_count": obj.images.count(),
         })
 
     return Response({"data": data}, status=200)

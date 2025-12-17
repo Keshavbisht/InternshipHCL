@@ -95,3 +95,121 @@
 .sidebar-nav::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
 }
+.sidebar {
+  width: 250px;
+  height: 100vh;               /* Full viewport height */
+  display: flex;
+  flex-direction: column;
+  background-color: #1f2937;
+  color: #fff;
+}
+
+/* Header stays fixed */
+.sidebar-header {
+  flex-shrink: 0;
+}
+
+/* ✅ THIS MAKES MENU SCROLLABLE */
+.sidebar-nav {
+  flex: 1;                     /* Take remaining height */
+  overflow-y: auto;            /* Enable vertical scroll */
+  padding: 10px 0;
+}
+
+/* Footer stays fixed */
+.sidebar-footer {
+  flex-shrink: 0;
+  padding: 10px;
+  text-align: center;
+  font-size: 12px;
+  background-color: #111827;
+}
+
+/* Menu items */
+.menu-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.menu-item:hover {
+  background-color: #374151;
+}
+
+.menu-item.active {
+  background-color: #2563eb;
+}
+.sidebar {
+  height: 100vh;
+  width: 250px;
+  background-color: #1f2937;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease;
+}
+
+/* COLLAPSED STATE */
+.sidebar.collapsed {
+  width: 70px;
+}
+
+/* HEADER */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.title {
+  margin-left: 10px;
+  font-weight: bold;
+}
+
+/* NAV */
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* MENU ITEMS */
+.menu-item {
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.menu-item:hover {
+  background-color: #374151;
+}
+
+.menu-item.active {
+  background-color: #2563eb;
+}
+
+.menu-icon {
+  font-size: 18px;
+  width: 30px;
+  text-align: center;
+}
+
+.menu-label {
+  margin-left: 10px;
+}
+
+/* FOOTER */
+.sidebar-footer {
+  padding: 10px;
+  text-align: center;
+  font-size: 12px;
+}

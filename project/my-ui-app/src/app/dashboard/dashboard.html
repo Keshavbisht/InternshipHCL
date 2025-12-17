@@ -1,8 +1,12 @@
 <!-- TOP BAR -->
 <div class="top-bar">
   <div>
-    <strong>Dashboard</strong> &nbsp; | &nbsp;
-    Logged in as: <span class="badge">{{ role }}</span>
+    <strong> </strong> &nbsp;  &nbsp;
+    <span class="user-badge">
+  👤 {{ loggedInUserName }}
+  <small class="role-text">({{ role }})</small>
+</span>
+
   </div>
   <button class="logout-btn" (click)="logout()">Logout</button>
 </div>

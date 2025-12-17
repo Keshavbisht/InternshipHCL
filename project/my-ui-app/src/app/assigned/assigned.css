@@ -57,3 +57,288 @@ a {
 a:hover {
   text-decoration: underline;
 }
+/* ============================================
+   ASSIGNED SOP PAGE STYLES
+   ============================================ */
+
+.assigned-wrapper {
+  padding: 30px;
+  background: #f5f5f5;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ============================================
+   SEARCH SECTION
+   ============================================ */
+
+.search-section {
+  margin-bottom: 30px;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 100%;
+  padding: 14px 20px;
+  font-size: 15px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  outline: none;
+  background: white;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  color: #6b7280;
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
+}
+
+.search-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ============================================
+   NO DATA STATE
+   ============================================ */
+
+.no-data {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+/* ============================================
+   TABLE WRAPPER
+   ============================================ */
+
+.table-wrapper {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  margin-bottom: 30px;
+}
+
+/* ============================================
+   TABLE STYLES
+   ============================================ */
+
+.assigned-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+/* TABLE HEADER */
+.assigned-table thead {
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.assigned-table thead th {
+  padding: 18px 20px;
+  text-align: left;
+  font-weight: 500;
+  font-size: 14px;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.assigned-table thead th:first-child {
+  width: 60px;
+  text-align: center;
+}
+
+/* TABLE BODY */
+.assigned-table tbody tr {
+  border-bottom: 1px solid #f3f4f6;
+  transition: background-color 0.15s ease;
+}
+
+.assigned-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.assigned-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.assigned-table tbody td {
+  padding: 20px;
+  color: #111827;
+  vertical-align: middle;
+}
+
+.row-number {
+  text-align: center;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+/* ============================================
+   RESOURCE LINKS
+   ============================================ */
+
+.assigned-table tbody td > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.resource-link {
+  display: inline-block;
+  color: #3b82f6;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.2s ease;
+}
+
+.resource-link:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.assigned-table tbody td:last-child,
+.assigned-table tbody td:nth-last-child(2),
+.assigned-table tbody td:nth-last-child(3) {
+  color: #6b7280;
+}
+
+/* ============================================
+   PAGINATION SECTION
+   ============================================ */
+
+.pagination-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 0;
+}
+
+.page-btn {
+  min-width: 44px;
+  height: 44px;
+  padding: 0 16px;
+  border: 1px solid #d1d5db;
+  background: white;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-btn:hover:not(:disabled):not(.active) {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  color: #9ca3af;
+}
+
+.page-btn.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+  font-weight: 600;
+}
+
+.page-btn.page-number {
+  min-width: 44px;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 1200px) {
+  .assigned-table {
+    font-size: 14px;
+  }
+
+  .assigned-table thead th,
+  .assigned-table tbody td {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 992px) {
+  .assigned-wrapper {
+    padding: 20px;
+  }
+
+  .assigned-table {
+    font-size: 13px;
+  }
+
+  .assigned-table thead th,
+  .assigned-table tbody td {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .assigned-wrapper {
+    padding: 16px;
+  }
+
+  .search-input {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+    border-radius: 8px;
+  }
+
+  .assigned-table {
+    min-width: 800px;
+    font-size: 12px;
+  }
+
+  .assigned-table thead th,
+  .assigned-table tbody td {
+    padding: 10px;
+  }
+
+  .page-btn {
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    font-size: 14px;
+  }
+
+  .pagination-section {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 576px) {
+  .page-btn {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+    font-size: 13px;
+  }
+
+  .page-btn.page-number:not(.active) {
+    display: none;
+  }
+
+  .page-btn.active {
+    display: flex;
+  }
+}

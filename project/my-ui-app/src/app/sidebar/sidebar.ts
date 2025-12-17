@@ -25,6 +25,12 @@ export class SidebarComponent implements OnInit {
         this.currentRoute = event.url;
       });
   }
+  isCollapsed: boolean = false;
+
+toggleSidebar(): void {
+  this.isCollapsed = !this.isCollapsed;
+}
+
 
   ngOnInit(): void {
     const storedRole = localStorage.getItem('role');

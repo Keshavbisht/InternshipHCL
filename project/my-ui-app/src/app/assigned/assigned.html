@@ -1,74 +1,131 @@
 <div class="assigned-wrapper">
+  
+  <!-- SEARCH BAR -->
+  <div class="search-section">
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search by process, subprocess, or objective..."
+      [(ngModel)]="searchText"
+      (input)="filterData()"
+    />
+  </div>
 
-  <h1 class="page-title">Assigned SOP</h1>
-
-  <h2 class="sub-title">Assigned Objectives</h2>
-
-  <!-- No data -->
-  <div *ngIf="assignedData.length === 0" class="no-data">
+  <!-- NO DATA STATE -->
+  <div *ngIf="filteredData.length === 0" class="no-data">
     No assigned objectives found.
   </div>
 
-  <!-- TABLE -->
-  <table class="assigned-table" *ngIf="assignedData.length > 0">
-    <thead>
-      <tr>
-        <th>Process</th>
-        <th>Subprocess</th>
-        <th>Objective</th>
-        <th>Documents</th>
-        <th>Videos</th>
-        <th>Images</th>
-      </tr>
-    </thead>
+  <!-- DATA TABLE -->
+  <div *ngIf="filteredData.length > 0" class="table-wrapper">
+    <table class="assigned-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Process</th>
+          <th>Subprocess</th>
+          <th>Objective</th>
+          <th>Documents</th>
+          <th>Videos</th>
+          <th>Images</th>
+        </tr>
+      </thead>
 
-    <tbody>
+      <tbody>
+        <tr *ngFor="let row of paginatedData; let i = index">
+          
+          <!-- Row Number -->
+          <td class="row-number">
+            {{ (currentPage - 1) * itemsPerPage + i + 1 }}
+          </td>
 
-      <!-- LOOP PROCESS -->
-      <ng-container *ngFor="let p of assignedData">
+          <!-- Process -->
+          <td>{{ row.process_name }}</td>
 
-        <!-- LOOP OBJECTIVES -->
-        <ng-container *ngFor="let obj of p.objectives">
+          <!-- Subprocess -->
+          <td>{{ row.subprocess_name }}</td>
 
-          <tr>
-            <td>{{ p.process_name }}</td>
-            <td>{{ obj.subprocess_name }}</td>
-            <td>{{ obj.objective_name }}</td>
+          <!-- Objective -->
+          <td>{{ row.objective_name }}</td>
 
-            <!-- Documents -->
-            <td>
-              <ul>
-                <li *ngFor="let doc of obj.links.documents">
-                  <a [href]="doc" target="_blank">Open Document</a>
-                </li>
-              </ul>
-            </td>
+          <!-- Documents -->
+          <td>
+            <div *ngIf="row.documents && row.documents.length > 0; else noDocs">
+              <a 
+                *ngFor="let doc of row.documents; let docIndex = index" 
+                [href]="doc" 
+                target="_blank" 
+                class="resource-link"
+              >
+                Doc {{ docIndex + 1 }}
+              </a>
+            </div>
+            <ng-template #noDocs>-</ng-template>
+          </td>
 
-            <!-- Videos -->
-            <td>
-              <ul>
-                <li *ngFor="let vid of obj.links.videos">
-                  <a [href]="vid" target="_blank">Watch Video</a>
-                </li>
-              </ul>
-            </td>
+          <!-- Videos -->
+          <td>
+            <div *ngIf="row.videos && row.videos.length > 0; else noVideos">
+              <a 
+                *ngFor="let vid of row.videos; let vidIndex = index" 
+                [href]="vid" 
+                target="_blank" 
+                class="resource-link"
+              >
+                Video {{ vidIndex + 1 }}
+              </a>
+            </div>
+            <ng-template #noVideos>-</ng-template>
+          </td>
 
-            <!-- Images -->
-            <td>
-              <ul>
-                <li *ngFor="let img of obj.links.images">
-                  <a [href]="img" target="_blank">View Image</a>
-                </li>
-              </ul>
-            </td>
+          <!-- Images -->
+          <td>
+            <div *ngIf="row.images && row.images.length > 0; else noImages">
+              <a 
+                *ngFor="let img of row.images; let imgIndex = index" 
+                [href]="img" 
+                target="_blank" 
+                class="resource-link"
+              >
+                Image {{ imgIndex + 1 }}
+              </a>
+            </div>
+            <ng-template #noImages>-</ng-template>
+          </td>
 
-          </tr>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-        </ng-container>
+  <!-- PAGINATION -->
+  <div class="pagination-section" *ngIf="filteredData.length > 0 && totalPages > 1">
+    
+    <button 
+      class="page-btn" 
+      (click)="previousPage()" 
+      [disabled]="currentPage === 1"
+    >
+      Prev
+    </button>
 
-      </ng-container>
+    <button
+      *ngFor="let p of pageNumbers"
+      class="page-btn page-number"
+      [class.active]="p === currentPage"
+      (click)="goToPage(p)"
+    >
+      {{ p }}
+    </button>
 
-    </tbody>
-  </table>
+    <button 
+      class="page-btn" 
+      (click)="nextPage()" 
+      [disabled]="currentPage === totalPages"
+    >
+      Next
+    </button>
+
+  </div>
 
 </div>

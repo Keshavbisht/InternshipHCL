@@ -1206,3 +1206,14 @@ select:disabled {
     max-width: 95%;
   }
 }
+.user-badge {
+  background: #eef2ff;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.role-text {
+  color: #555;
+  font-size: 12px;
+}

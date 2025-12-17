@@ -17,6 +17,8 @@ export class DashboardComponent implements OnInit {
   filteredUsers: any[] = [];
   paginatedUsers: any[] = [];
   loggedInUserId: number | null = null;
+  loggedInUserName: string = '';
+
 
   searchText: string = '';
   isLoadingUsers: boolean = true;
@@ -67,15 +69,18 @@ export class DashboardComponent implements OnInit {
 
   constructor(private http: HttpClient, private router: Router) {}
 
+  // Fetch initial data Step -1
   ngOnInit(): void {
-    const storedRole = localStorage.getItem('role');
-    const userData = localStorage.getItem("user");
+    const storedRole = localStorage.getItem('role'); // Get role from localStorage
+    const userData = localStorage.getItem("user"); // Get user data from localStorage
 
     if (userData) {
-      this.loggedInUserId = JSON.parse(userData).id;
+      const user = JSON.parse(userData);
+      this.loggedInUserId = user.id;
+      this.loggedInUserName = `${user.first_name} ${user.last_name}`;
     }
 
-    this.role = storedRole ? storedRole : 'user';
+    this.role = storedRole ? storedRole : 'user'; 
     this.isAdmin = this.role === 'admin';
 
     // Load all main data
@@ -127,8 +132,7 @@ export class DashboardComponent implements OnInit {
       error: (err) => console.error('Error loading subprocesses:', err)
     });
   }
-
-  // ❗❗❗ THIS WAS MISSING → FIX OBJECTIVE NOT SHOWING
+  // ----------- OBJECTIVES -------------
   loadObjectives(): void {
   this.http.get('http://127.0.0.1:8000/api/auth/objective/list/').subscribe({
     next: (res: any) => {

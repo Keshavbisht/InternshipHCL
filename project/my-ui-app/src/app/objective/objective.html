@@ -76,40 +76,54 @@
   </div>
 
   <!-- OBJECTIVES TABLE -->
-  <div class="table-wrapper">
-    <div class="table-card">
-      <h3 class="table-title">Objectives List</h3>
-      <table class="styled-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Process</th>
-            <th>SubProcess</th>
-            <th>Objective Name</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let obj of objectives">
-            <td>{{ obj.objective_id }}</td>
-            <td>{{ obj.process_name }}</td>
-            <td>{{ obj.subprocess_name }}</td>
-            <td>{{ obj.objective_name }}</td>
-            <td>
-              <span class="status active" *ngIf="obj.status === 'active'">● Active</span>
-              <span class="status inactive" *ngIf="obj.status === 'inactive'">● Inactive</span>
-            </td>
-            <td>
-              <button class="btn-edit" (click)="editObjective(obj)">Edit</button>
-              <button class="btn-delete" (click)="deleteObjective(obj.objective_id)">Delete</button>
-              <button class="btn-view" (click)="selectObjective(obj.objective_id)">Manage Media</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+<div class="table-wrapper">
+  <div class="table-card">
+    <h3 class="table-title">Objectives List</h3>
+
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Process</th>
+          <th>SubProcess</th>
+          <th>Objective</th>
+          <th>Docs</th>
+          <th>Videos</th>
+          <th>Images</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let obj of objectives">
+          <td>{{ obj.objective_id }}</td>
+          <td>{{ obj.process_name }}</td>
+          <td>{{ obj.subprocess_name }}</td>
+          <td>{{ obj.objective_name }}</td>
+
+          <!-- NEW MEDIA COUNTS -->
+          <td>{{ obj.document_count }}</td>
+          <td>{{ obj.video_count }}</td>
+          <td>{{ obj.image_count }}</td>
+
+          <td>
+            <span class="status active" *ngIf="obj.status === 'active'">● Active</span>
+            <span class="status inactive" *ngIf="obj.status === 'inactive'">● Inactive</span>
+          </td>
+
+          <td>
+            <button class="btn-edit" (click)="editObjective(obj)">Edit</button>
+            <button class="btn-delete" (click)="deleteObjective(obj.objective_id)">Delete</button>
+            <button class="btn-view" (click)="selectObjective(obj.objective_id)">Manage Media</button>
+          </td>
+
+        </tr>
+      </tbody>
+    </table>
+
   </div>
+</div>
 
   <!-- MEDIA MANAGEMENT SECTION -->
   <div *ngIf="selectedObjectiveId" class="media-wrapper">
