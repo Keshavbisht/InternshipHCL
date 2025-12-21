@@ -11,23 +11,32 @@ class UserSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
-    
+
     def validate(self, data):
-        email = data.get('email')
-        password = data.get('password')
-        
-        try:
-            user = User.objects.get(email=email)
-            user = authenticate(username=user.username, password=password)
-            
-            if user is None:
-                raise serializers.ValidationError('Invalid credentials')
-                
-            data['user'] = user
-            return data
-            
-        except User.DoesNotExist:
-            raise serializers.ValidationError('User not found')
+        email = data.get("email")
+        password = data.get("password")
+
+        if not email or not password:
+            raise serializers.ValidationError("Email and password are required")
+
+        # ✅ SAFE: never throws exception
+        user_obj = User.objects.filter(email=email).first()
+        if not user_obj:
+            raise serializers.ValidationError("Invalid credentials")
+
+        # ✅ Django-approved authentication
+        user = authenticate(
+            username=user_obj.username,
+            password=password
+        )
+
+        if not user:
+            raise serializers.ValidationError("Invalid credentials")
+
+        # ✅ REQUIRED for login_view
+        data["user"] = user
+        return data
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
