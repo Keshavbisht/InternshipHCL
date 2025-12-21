@@ -1,7 +1,6 @@
 [build]
   command = "ng build --configuration production"
-  publish = "dist/my-ui-app"
-
+  publish = "project/my-ui-app"
 [[redirects]]
   from = "/*"
   to = "/index.html"
