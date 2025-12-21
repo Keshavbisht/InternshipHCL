@@ -14,6 +14,8 @@ import pymysql
 pymysql.install_as_MySQLdb()
 from pathlib import Path
 from datetime import timedelta  # ADD THIS
+import dj_database_url
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -85,14 +87,10 @@ WSGI_APPLICATION = "back.wsgi.application"  # Lowercase
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('MYSQLDATABASE'),
-        'USER': os.environ.get('MYSQLUSER'),
-        'PASSWORD': os.environ.get('MYSQLPASSWORD'),
-        'HOST': os.environ.get('MYSQLHOST'),   # ✅ NOT localhost
-        'PORT': os.environ.get('MYSQLPORT'),
-    }
+    'default': dj_database_url.parse(
+        os.environ.get("MYSQL_URL"),
+        conn_max_age=600,
+    )
 }
 
 
