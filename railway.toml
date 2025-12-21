@@ -1,0 +1,5 @@
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "cd DjangoServer/Backend && python manage.py migrate && gunicorn back.wsgi:application"

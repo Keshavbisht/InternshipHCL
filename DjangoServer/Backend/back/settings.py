@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 import pymysql
 pymysql.install_as_MySQLdb()
-
 from pathlib import Path
 from datetime import timedelta  # ADD THIS
 
