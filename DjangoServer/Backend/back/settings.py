@@ -153,6 +153,10 @@ else:
     ]
 
 CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = [
+    "https://internshiphcl-production.up.railway.app",
+]
+
 
 # Allow all HTTP methods
 CORS_ALLOW_METHODS = [
