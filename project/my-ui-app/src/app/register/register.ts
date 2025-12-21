@@ -13,24 +13,27 @@ import { CommonModule } from '@angular/common';
 })
 export class Register implements OnInit {
 
+  // ✅ SINGLE SOURCE OF TRUTH (PRODUCTION API)
+  private apiUrl = 'https://internshiphcl-production.up.railway.app/api/auth';
+
   form = {
-    first_name: "",
-    last_name: "",
-    username: "",
-    email: "",
-    phone: "",
-    password: "",
-    confirmPassword: ""
+    first_name: '',
+    last_name: '',
+    username: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: ''
   };
 
   users: any[] = [];
   filteredUsers: any[] = [];
   paginatedUsers: any[] = [];
 
-  searchText = "";
-  errorMessage = "";
-  successMessage = "";
-  
+  searchText = '';
+  errorMessage = '';
+  successMessage = '';
+
   isLoading = false;
   isLoadingUsers = true;
 
@@ -48,52 +51,48 @@ export class Register implements OnInit {
     this.loadUsers();
   }
 
-  // Load all users
+  // ================= LOAD USERS =================
   loadUsers() {
     this.isLoadingUsers = true;
-    this.http.get("http://127.0.0.1:8000/api/auth/users/")
-      .subscribe({
-        next: (res: any) => {
-          this.users = res;
-          this.filteredUsers = [...res];
-          this.isLoadingUsers = false;
-          this.updatePagination();
-        },
-        error: err => {
-          this.errorMessage = "Failed to load users";
-          this.isLoadingUsers = false;
-        }
-      });
+
+    this.http.get(`${this.apiUrl}/users/`).subscribe({
+      next: (res: any) => {
+        this.users = res;
+        this.filteredUsers = [...res];
+        this.isLoadingUsers = false;
+        this.updatePagination();
+      },
+      error: () => {
+        this.errorMessage = 'Failed to load users';
+        this.isLoadingUsers = false;
+      }
+    });
   }
 
-  // Search filter
+  // ================= SEARCH =================
   filterUsers() {
     const text = this.searchText.toLowerCase().trim();
 
-    if (!text) {
-      this.filteredUsers = [...this.users];
-    } else {
-      this.filteredUsers = this.users.filter((u) =>
-        (u.first_name || "").toLowerCase().includes(text) ||
-        (u.last_name || "").toLowerCase().includes(text) ||
-        (u.username || "").toLowerCase().includes(text) ||
-        (u.email || "").toLowerCase().includes(text) ||
-        (u.phone || "").includes(text) ||
-        (u.status || "").toLowerCase().includes(text)
-      );
-    }
+    this.filteredUsers = !text
+      ? [...this.users]
+      : this.users.filter((u) =>
+          (u.first_name || '').toLowerCase().includes(text) ||
+          (u.last_name || '').toLowerCase().includes(text) ||
+          (u.username || '').toLowerCase().includes(text) ||
+          (u.email || '').toLowerCase().includes(text) ||
+          (u.phone || '').includes(text) ||
+          (u.status || '').toLowerCase().includes(text)
+        );
 
     this.currentPage = 1;
     this.updatePagination();
   }
 
-  // Pagination Logic
+  // ================= PAGINATION =================
   updatePagination() {
     this.totalPages = Math.ceil(this.filteredUsers.length / this.itemsPerPage) || 1;
-
     const start = (this.currentPage - 1) * this.itemsPerPage;
     const end = start + this.itemsPerPage;
-
     this.paginatedUsers = this.filteredUsers.slice(start, end);
   }
 
@@ -122,7 +121,7 @@ export class Register implements OnInit {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
 
-  // Edit User
+  // ================= EDIT =================
   editUser(user: any) {
     this.isEditMode = true;
     this.editingUserId = user.id;
@@ -132,13 +131,12 @@ export class Register implements OnInit {
       last_name: user.last_name,
       username: user.username,
       email: user.email,
-      phone: user.phone || "",
-      password: "",
-      confirmPassword: ""
+      phone: user.phone || '',
+      password: '',
+      confirmPassword: ''
     };
 
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    this.successMessage = "Editing user. Update details and click Update.";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   cancelEdit() {
@@ -147,43 +145,41 @@ export class Register implements OnInit {
     this.resetForm();
   }
 
-  // Delete user
+  // ================= DELETE =================
   deleteUser(id: number) {
-    if (!confirm("Are you sure you want to delete this user?")) return;
+    if (!confirm('Are you sure you want to delete this user?')) return;
 
-    this.http.delete(`http://127.0.0.1:8000/api/auth/users/${id}/delete/`)
-      .subscribe({
-        next: () => {
-          this.successMessage = "User deleted successfully";
-          this.loadUsers();
-        },
-        error: () => this.errorMessage = "Failed to delete user"
-      });
-  }
-
-  // Toggle Active/Inactive
-  toggleStatus(user: any) {
-    const newStatus = user.status === "active" ? "inactive" : "active";
-  
-    this.http.patch(
-      `http://127.0.0.1:8000/api/auth/users/${user.id}/toggle-status/`,
-      { status: newStatus }
-    ).subscribe({
+    this.http.delete(`${this.apiUrl}/users/${id}/delete/`).subscribe({
       next: () => {
-        user.status = newStatus;
-        this.successMessage = `User status updated to ${newStatus}`;
+        this.successMessage = 'User deleted successfully';
+        this.loadUsers();
       },
-      error: () => this.errorMessage = "Failed to update status"
+      error: () => (this.errorMessage = 'Failed to delete user')
     });
   }
 
-  // Submit form (Create or Update)
+  // ================= TOGGLE STATUS =================
+  toggleStatus(user: any) {
+    const newStatus = user.status === 'active' ? 'inactive' : 'active';
+
+    this.http
+      .patch(`${this.apiUrl}/users/${user.id}/toggle-status/`, { status: newStatus })
+      .subscribe({
+        next: () => {
+          user.status = newStatus;
+          this.successMessage = `User status updated to ${newStatus}`;
+        },
+        error: () => (this.errorMessage = 'Failed to update status')
+      });
+  }
+
+  // ================= SUBMIT =================
   onSubmit() {
-    this.errorMessage = "";
-    this.successMessage = "";
+    this.errorMessage = '';
+    this.successMessage = '';
 
     if (this.form.password !== this.form.confirmPassword) {
-      this.errorMessage = "Passwords do not match";
+      this.errorMessage = 'Passwords do not match';
       return;
     }
 
@@ -194,51 +190,48 @@ export class Register implements OnInit {
 
     this.isLoading = true;
 
-    if (this.isEditMode) {
+    if (this.isEditMode && this.editingUserId) {
       // UPDATE
-      this.http.put(
-        `http://127.0.0.1:8000/api/auth/users/${this.editingUserId}/update/`,
-        payload
-      ).subscribe({
-        next: () => {
-          this.successMessage = "User updated successfully";
-          this.isLoading = false;
-          this.cancelEdit();
-          this.loadUsers();
-        },
-        error: () => {
-          this.errorMessage = "Update failed";
-          this.isLoading = false;
-        }
-      });
-
-    } else {
-      // CREATE
-      this.http.post("http://127.0.0.1:8000/api/auth/register/", payload)
+      this.http
+        .put(`${this.apiUrl}/users/${this.editingUserId}/update/`, payload)
         .subscribe({
           next: () => {
-            this.successMessage = "User registered successfully";
+            this.successMessage = 'User updated successfully';
             this.isLoading = false;
-            this.resetForm();
+            this.cancelEdit();
             this.loadUsers();
           },
           error: () => {
-            this.errorMessage = "Registration failed";
+            this.errorMessage = 'Update failed';
             this.isLoading = false;
           }
         });
+    } else {
+      // CREATE
+      this.http.post(`${this.apiUrl}/register/`, payload).subscribe({
+        next: () => {
+          this.successMessage = 'User registered successfully';
+          this.isLoading = false;
+          this.resetForm();
+          this.loadUsers();
+        },
+        error: () => {
+          this.errorMessage = 'Registration failed';
+          this.isLoading = false;
+        }
+      });
     }
   }
 
   resetForm() {
     this.form = {
-      first_name: "",
-      last_name: "",
-      username: "",
-      email: "",
-      phone: "",
-      password: "",
-      confirmPassword: ""
+      first_name: '',
+      last_name: '',
+      username: '',
+      email: '',
+      phone: '',
+      password: '',
+      confirmPassword: ''
     };
   }
 }
