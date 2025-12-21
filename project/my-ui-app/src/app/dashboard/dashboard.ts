@@ -4,8 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 
-const API_BASE = 'https://internshiphcl-production.up.railway.app/api/auth';
-
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -18,21 +16,24 @@ export class DashboardComponent implements OnInit {
   users: any[] = [];
   filteredUsers: any[] = [];
   paginatedUsers: any[] = [];
-
   loggedInUserId: number | null = null;
   loggedInUserName: string = '';
 
-  searchText = '';
-  isLoadingUsers = true;
 
-  currentPage = 1;
-  itemsPerPage = 5;
-  totalPages = 1;
+  searchText: string = '';
+  isLoadingUsers: boolean = true;
 
-  role = 'user';
-  isAdmin = false;
+  // Pagination
+  currentPage: number = 1;
+  itemsPerPage: number = 5;
+  totalPages: number = 1;
 
-  showEditModal = false;
+  // Role
+  role: string = 'user';
+  isAdmin: boolean = false;
+
+  // Edit modal
+  showEditModal: boolean = false;
   selectedUser: any = null;
 
   editForm = {
@@ -47,7 +48,8 @@ export class DashboardComponent implements OnInit {
     confirmPassword: ''
   };
 
-  showAssignModal = false;
+  // Assignment Modal
+  showAssignModal: boolean = false;
 
   allProcesses: any[] = [];
   allSubprocesses: any[] = [];
@@ -57,9 +59,9 @@ export class DashboardComponent implements OnInit {
   selectedSubprocessIds: number[] = [];
   selectedObjectiveIds: number[] = [];
 
-  processSearch = '';
-  subprocessSearch = '';
-  objectiveSearch = '';
+  processSearch: string = "";
+  subprocessSearch: string = "";
+  objectiveSearch: string = "";
 
   filteredProcesses: any[] = [];
   filteredSubprocesses: any[] = [];
@@ -67,9 +69,10 @@ export class DashboardComponent implements OnInit {
 
   constructor(private http: HttpClient, private router: Router) {}
 
+  // Fetch initial data Step -1
   ngOnInit(): void {
-    const userData = localStorage.getItem('user');
-    const storedRole = localStorage.getItem('role');
+    const storedRole = localStorage.getItem('role'); // Get role from localStorage
+    const userData = localStorage.getItem("user"); // Get user data from localStorage
 
     if (userData) {
       const user = JSON.parse(userData);
@@ -77,13 +80,14 @@ export class DashboardComponent implements OnInit {
       this.loggedInUserName = `${user.first_name} ${user.last_name}`;
     }
 
-    this.role = storedRole || 'user';
+    this.role = storedRole ? storedRole : 'user'; 
     this.isAdmin = this.role === 'admin';
 
+    // Load all main data
     this.loadUsers();
     this.loadProcesses();
     this.loadSubprocesses();
-    this.loadObjectives();
+    this.loadObjectives();  // REQUIRED for objectives to show
   }
 
   logout(): void {
@@ -91,98 +95,148 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  // ---------------- USERS ----------------
+  // ----------- USERS -------------
   loadUsers(): void {
     this.isLoadingUsers = true;
-    this.http.get(`${API_BASE}/users/`).subscribe({
+    this.http.get('https://internshiphcl-production.up.railway.app/api/auth/users/').subscribe({
       next: (res: any) => {
         this.users = res;
         this.filteredUsers = [...res];
         this.isLoadingUsers = false;
         this.updatePagination();
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error loading users:', err);
         this.isLoadingUsers = false;
         alert('Failed to load users');
       }
     });
   }
 
-  // ---------------- PROCESS ----------------
+  // ----------- PROCESSES -------------
   loadProcesses(): void {
-    this.http.get(`${API_BASE}/process/list/`).subscribe({
-      next: (res: any) => this.allProcesses = res
+    this.http.get('https://internshiphcl-production.up.railway.app/api/auth/process/list/').subscribe({
+      next: (res: any) => {
+        this.allProcesses = res;
+      },
+      error: (err) => console.error('Error loading processes:', err)
     });
   }
 
-  // ---------------- SUBPROCESS ----------------
+  // ----------- SUBPROCESSES -------------
   loadSubprocesses(): void {
-    this.http.get(`${API_BASE}/subprocess/list/`).subscribe({
-      next: (res: any) => this.allSubprocesses = res
+    this.http.get('https://internshiphcl-production.up.railway.app/api/auth/subprocess/list/').subscribe({
+      next: (res: any) => {
+        this.allSubprocesses = res;
+      },
+      error: (err) => console.error('Error loading subprocesses:', err)
     });
   }
-
-  // ---------------- OBJECTIVE ----------------
-  // ---------------- OBJECTIVE ----------------
-loadObjectives(): void {
-  this.http.get(`${API_BASE}/objective/list/`).subscribe({
+  // ----------- OBJECTIVES -------------
+  loadObjectives(): void {
+  this.http.get('https://internshiphcl-production.up.railway.app/api/auth/objective/list/').subscribe({
     next: (res: any) => {
-      this.allObjectives = res.data || [];
+      this.allObjectives = res.data;   // <-- FIX HERE
+      console.log("Loaded Objectives:", this.allObjectives);
     },
-    error: (err) => {
-      console.error('Error loading objectives:', err);
-    }
+    error: (err) => console.error('Error loading objectives:', err)
   });
 }
 
 
-  // ---------------- SEARCH ----------------
+  // ----------- SEARCH USERS -------------
   filterUsers(): void {
     const txt = this.searchText.toLowerCase().trim();
 
-    this.filteredUsers = !txt
-      ? [...this.users]
-      : this.users.filter(u =>
+    if (!txt) {
+      this.filteredUsers = [...this.users];
+    } else {
+      this.filteredUsers = this.users.filter((u) => {
+        return (
           (u.first_name || '').toLowerCase().includes(txt) ||
           (u.last_name || '').toLowerCase().includes(txt) ||
           (u.username || '').toLowerCase().includes(txt) ||
           (u.email || '').toLowerCase().includes(txt) ||
+          (u.phone || '').toString().includes(txt) ||
           (u.status || '').toLowerCase().includes(txt) ||
           (u.role || '').toLowerCase().includes(txt)
         );
+      });
+    }
 
     this.currentPage = 1;
     this.updatePagination();
   }
 
-
-  // ---------------- PAGINATION ----------------
+  // ----------- PAGINATION -------------
   updatePagination(): void {
     this.totalPages = Math.ceil(this.filteredUsers.length / this.itemsPerPage) || 1;
+
     const start = (this.currentPage - 1) * this.itemsPerPage;
-    this.paginatedUsers = this.filteredUsers.slice(start, start + this.itemsPerPage);
+    const end = start + this.itemsPerPage;
+    this.paginatedUsers = this.filteredUsers.slice(start, end);
   }
 
   get pageNumbers(): number[] {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
 
-  goToPage(p: number): void {
-    this.currentPage = p;
-    this.updatePagination();
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePagination();
+    }
   }
 
-  // ---------------- EDIT USER ----------------
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePagination();
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagination();
+    }
+  }
+
+  // ----------- EDIT USER MODAL -------------
   openEditModal(user: any): void {
     if (!this.isAdmin) return;
+
     this.selectedUser = user;
     this.showEditModal = true;
-    this.editForm = { ...user, password: '', confirmPassword: '' };
+
+    this.editForm = {
+      first_name: user.first_name || '',
+      last_name: user.last_name || '',
+      username: user.username || '',
+      email: user.email || '',
+      phone: user.phone || '',
+      status: user.status || 'inactive',
+      role: user.role || 'user',
+      password: '',
+      confirmPassword: ''
+    };
   }
 
   closeModal(): void {
     this.showEditModal = false;
     this.selectedUser = null;
+
+    this.editForm = {
+      first_name: '',
+      last_name: '',
+      username: '',
+      email: '',
+      phone: '',
+      status: '',
+      role: '',
+      password: '',
+      confirmPassword: ''
+    };
   }
 
   updateUser(): void {
@@ -193,54 +247,116 @@ loadObjectives(): void {
       return;
     }
 
-    const payload: any = { ...this.editForm };
-    delete payload.confirmPassword;
+    const payload: any = {
+      first_name: this.editForm.first_name,
+      last_name: this.editForm.last_name,
+      username: this.editForm.username,
+      email: this.editForm.email,
+      phone: this.editForm.phone,
+      status: this.editForm.status,
+      role: this.editForm.role
+    };
 
-    if (!payload.password) delete payload.password;
+    if (this.editForm.password.trim() !== '') {
+      payload.password = this.editForm.password;
+      payload.password_confirm = this.editForm.confirmPassword;
+    }
 
-    this.http.put(
-      `${API_BASE}/users/${this.selectedUser.id}/update/`,
-      payload
-    ).subscribe({
-      next: () => {
-        alert('User updated');
-        this.closeModal();
-        this.loadUsers();
-      },
-      error: () => alert('Update failed')
-    });
+    this.http
+      .put(
+        `https://internshiphcl-production.up.railway.app/api/auth/users/${this.selectedUser.id}/update/`,
+        payload
+      )
+      .subscribe({
+        next: () => {
+          alert('User updated successfully');
+          this.closeModal();
+          this.loadUsers();
+        },
+        error: (err) => {
+          console.error('Update error:', err);
+          alert('Failed to update user');
+        }
+      });
   }
 
-  deleteUser(id: number): void {
-    if (!confirm('Delete user?')) return;
+  deleteUser(id: number) {
+    if (!this.isAdmin) return;
 
-    this.http.delete(`${API_BASE}/users/${id}/delete/`).subscribe({
-      next: () => this.loadUsers(),
-      error: () => alert('Delete failed')
+    const loggedInUser = JSON.parse(localStorage.getItem("user") || "{}");
+
+    if (loggedInUser.id === id) {
+      alert("You cannot delete yourself.");
+      return;
+    }
+
+    if (!confirm("Are you sure?")) return;
+
+    this.http.delete(`https://internshiphcl-production.up.railway.app/api/auth/users/${id}/delete/`).subscribe({
+      next: () => {
+        alert("User deleted");
+        this.loadUsers();
+      },
+      error: () => alert("Delete failed")
     });
   }
 
   toggleStatus(user: any): void {
-    this.http.patch(
-      `${API_BASE}/users/${user.id}/toggle-status/`,
-      { status: user.status === 'active' ? 'inactive' : 'active' }
-    ).subscribe(() => user.status = user.status === 'active' ? 'inactive' : 'active');
+    if (!this.isAdmin) return;
+
+    const newStatus = user.status === 'active' ? 'inactive' : 'active';
+
+    this.http
+      .patch(
+        `https://internshiphcl-production.up.railway.app/api/auth/users/${user.id}/toggle-status/`,
+        { status: newStatus }
+      )
+      .subscribe({
+        next: () => { user.status = newStatus; },
+        error: () => alert('Failed to change status')
+      });
   }
 
-  changeRole(user: any, role: string): void {
-    this.http.patch(
-      `${API_BASE}/users/${user.id}/role/`,
-      { role }
-    ).subscribe(() => user.role = role);
+  changeRole(user: any, event: any) {
+    if (!this.isAdmin) return;
+
+    const loggedInUser = JSON.parse(localStorage.getItem("user") || "{}");
+
+    if (loggedInUser.id === user.id) {
+      alert("You cannot change your own role.");
+      event.target.value = user.role;
+      return;
+    }
+
+    const newRole = event.target.value;
+
+    this.http.patch(`https://internshiphcl-production.up.railway.app/api/auth/users/${user.id}/role/`, {
+      role: newRole
+    }).subscribe({
+      next: () => {
+        user.role = newRole;
+        alert("Role updated successfully!");
+      },
+      error: () => alert("Failed to update role")
+    });
   }
 
-  // ---------------- ASSIGN ----------------
+  // ---------------- ASSIGN MODAL ----------------------
+
   openAssignModal(user: any): void {
+    if (!this.isAdmin) return;
+
     this.selectedUser = user;
     this.showAssignModal = true;
+
+    // Load existing assignments
     this.selectedProcessIds = user.assigned_processes || [];
     this.selectedSubprocessIds = user.assigned_subprocesses || [];
     this.selectedObjectiveIds = user.assigned_objectives || [];
+
+    // Initialize filtered lists
+    this.filteredProcesses = [...this.allProcesses];
+
     this.filterSubprocesses();
     this.filterObjectives();
   }
@@ -248,57 +364,153 @@ loadObjectives(): void {
   closeAssignModal(): void {
     this.showAssignModal = false;
     this.selectedUser = null;
+
+    this.selectedProcessIds = [];
+    this.selectedSubprocessIds = [];
+    this.selectedObjectiveIds = [];
+
+    this.filteredProcesses = [];
+    this.filteredSubprocesses = [];
+    this.filteredObjectives = [];
+
+    this.processSearch = "";
+    this.subprocessSearch = "";
+    this.objectiveSearch = "";
   }
 
+  // Checks
+  isProcessAssigned(id: number): boolean {
+    return this.selectedProcessIds.includes(id);
+  }
+
+  isSubprocessAssigned(id: number): boolean {
+    return this.selectedSubprocessIds.includes(id);
+  }
+
+  isObjectiveAssigned(id: number): boolean {
+    return this.selectedObjectiveIds.includes(id);
+  }
+
+  // TOGGLE PROCESS
   toggleProcess(id: number): void {
-    this.toggle(id, this.selectedProcessIds);
+    const index = this.selectedProcessIds.indexOf(id);
+
+    if (index > -1) {
+      this.selectedProcessIds.splice(index, 1);
+    } else {
+      this.selectedProcessIds.push(id);
+    }
+
     this.filterSubprocesses();
   }
 
-  toggleSubprocess(id: number): void {
-    this.toggle(id, this.selectedSubprocessIds);
+  // PROCESS SEARCH
+  filterProcesses(): void {
+    const term = this.processSearch.toLowerCase().trim();
+
+    if (!term) {
+      this.filteredProcesses = [...this.allProcesses];
+    } else {
+      this.filteredProcesses = this.allProcesses.filter(p =>
+        p.process_name.toLowerCase().includes(term)
+      );
+    }
+  }
+
+  // SUBPROCESSES FILTER
+  filterSubprocesses(): void {
+    const selected = new Set(this.selectedProcessIds);
+
+    let baseList = this.allSubprocesses.filter(sp =>
+      selected.has(sp.process_id)
+    );
+
+    if (this.subprocessSearch.trim()) {
+      const term = this.subprocessSearch.toLowerCase();
+      baseList = baseList.filter(sp =>
+        sp.subprocess_name.toLowerCase().includes(term)
+      );
+    }
+
+    this.filteredSubprocesses = baseList;
+  }
+
+  // SEARCH SUBPROCESS
+  filterSubprocessSearch(): void {
+    this.filterSubprocesses();
     this.filterObjectives();
   }
 
-  toggleObjective(id: number): void {
-    this.toggle(id, this.selectedObjectiveIds);
-  }
-
-  toggle(id: number, list: number[]): void {
-    const i = list.indexOf(id);
-    i > -1 ? list.splice(i, 1) : list.push(id);
-  }
-
-  filterSubprocesses(): void {
-    this.filteredSubprocesses = this.allSubprocesses.filter(
-      sp => this.selectedProcessIds.includes(sp.process_id)
-    );
-  }
-
+  // FILTER OBJECTIVES
   filterObjectives(): void {
-    this.filteredObjectives = this.allObjectives.filter(
-      o => this.selectedSubprocessIds.includes(o.subprocess_id)
+    const selectedSub = new Set(this.selectedSubprocessIds);
+
+    let baseList = this.allObjectives.filter(obj =>
+      selectedSub.has(obj.subprocess_id)
     );
+
+    if (this.objectiveSearch.trim()) {
+      const term = this.objectiveSearch.toLowerCase();
+      baseList = baseList.filter(obj =>
+        obj.objective_name.toLowerCase().includes(term)
+      );
+    }
+
+    this.filteredObjectives = baseList;
   }
 
+  filterObjectiveSearch(): void {
+    this.filterObjectives();
+  }
+
+  // TOGGLE SUBPROCESS
+  toggleSubprocess(id: number): void {
+    const index = this.selectedSubprocessIds.indexOf(id);
+
+    if (index > -1) {
+      this.selectedSubprocessIds.splice(index, 1);
+    } else {
+      this.selectedSubprocessIds.push(id);
+    }
+
+    this.filterObjectives();
+  }
+
+  // TOGGLE OBJECTIVE
+  toggleObjective(id: number): void {
+    const index = this.selectedObjectiveIds.indexOf(id);
+
+    if (index > -1) {
+      this.selectedObjectiveIds.splice(index, 1);
+    } else {
+      this.selectedObjectiveIds.push(id);
+    }
+  }
+
+  // SAVE ASSIGNMENTS
   saveAssignments(): void {
     if (!this.selectedUser) return;
 
+    const payload = {
+      process_ids: this.selectedProcessIds,
+      subprocess_ids: this.selectedSubprocessIds,
+      objective_ids: this.selectedObjectiveIds
+    };
+
     this.http.post(
-      `${API_BASE}/users/${this.selectedUser.id}/assign/`,
-      {
-        process_ids: this.selectedProcessIds,
-        subprocess_ids: this.selectedSubprocessIds,
-        objective_ids: this.selectedObjectiveIds
-      }
-    ).subscribe({
+      `https://internshiphcl-production.up.railway.app/api/auth/users/${this.selectedUser.id}/assign/`,
+      payload
+    )
+    .subscribe({
       next: () => {
-        alert('Assignments saved');
+        alert("Assignments saved successfully!");
         this.closeAssignModal();
         this.loadUsers();
       },
-      error: () => alert('Assignment failed')
+      error: (err) => {
+        console.error("Assignment error:", err);
+        alert("Failed to save assignments");
+      }
     });
   }
 }
-
