@@ -12,7 +12,8 @@ import { HttpClient } from '@angular/common/http';
 })
 export class Subprocess {
 
-  apiBase = "http://127.0.0.1:8000/api/auth";
+  apiBase = "https://internshiphcl-production.up.railway.app/api/auth";
+
 
   processes: any[] = [];
   subprocesses: any[] = [];

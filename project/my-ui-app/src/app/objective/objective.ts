@@ -12,7 +12,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class ObjectiveComponent implements OnInit {
 
-  apiBase = "http://127.0.0.1:8000/api/auth";
+  apiBase = "https://internshiphcl-production.up.railway.app/api/auth";
 
   // Data arrays
   processes: any[] = [];

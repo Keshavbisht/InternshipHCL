@@ -13,7 +13,8 @@ import { HttpClient } from '@angular/common/http';
 export class Process {
 
   // API BASE URL (MATCHES YOUR DJANGO URLS)
-  apiBase = "http://127.0.0.1:8000/api/auth/process";
+  apiBase = "https://internshiphcl-production.up.railway.app/api/auth";
+
 
   processes: any[] = [];
 
