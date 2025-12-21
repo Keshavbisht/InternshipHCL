@@ -101,22 +101,27 @@ export class DashboardComponent implements OnInit {
 
   this.http.get('https://internshiphcl-production.up.railway.app/api/auth/users/')
     .subscribe({
-      next: (res: any[]) => {
-        this.users = res;
-        this.filteredUsers = [...res];
+      next: (res: any) => {
+        // Support different response shapes: array, { data: [] }, paginated { results: [] }
+        const list = Array.isArray(res)
+          ? res
+          : (res && (res.data || res.results || res.users))
+            ? (res.data || res.results || res.users)
+            : [];
+
+        this.users = list;
+        this.filteredUsers = [...this.users];
         this.isLoadingUsers = false;
         this.updatePagination();
 
-        // ✅ FIX: determine role from backend
-        const currentUser = res.find(
-          u => u.id === this.loggedInUserId
+        // Determine role from backend (if user present in returned list)
+        const currentUser = this.users.find(
+          (u: any) => u && u.id === this.loggedInUserId
         );
 
         if (currentUser) {
           this.role = currentUser.role;
           this.isAdmin = currentUser.role === 'admin';
-
-          // optional sync
           localStorage.setItem('role', currentUser.role);
         }
       },
