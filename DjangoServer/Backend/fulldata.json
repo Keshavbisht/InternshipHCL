@@ -1,0 +1,514 @@
+[
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$600000$azJc5t2oNBMfvjck9Adjt6$+jRtB6WTYy9ec1oTys4kuhYniTeO4KBAwbspdlN8J5c=",
+    "last_login": "2025-11-20T05:32:09.798Z",
+    "is_superuser": true,
+    "username": "keshavbisht",
+    "first_name": "Keshav",
+    "last_name": "Bisht",
+    "email": "keshavbisht006@gmail.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-11-20T05:30:44.885Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$600000$jMn8VsiUjKClCQodYsecYZ$2lPIbPTiDTXyoWLBTGC0DsVSqHKBYDS65RrFM25IH4g=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "Maahir",
+    "first_name": "Maahir",
+    "last_name": "",
+    "email": "keshavbisht6@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-24T04:09:15.814Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$600000$Gy3er6zNYAfnkxP3et4p9Z$pV6GonZfOAordrwlriHGrklKrd3vFrgcnBAOu+IECXo=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "krishi_sehrawat",
+    "first_name": "Krishi",
+    "last_name": "Sehrawat",
+    "email": "krishisehrawat13@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-30T17:08:27.517Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$600000$KQBUtzWFox6fdXdl0sTxnu$yanEM/kLITARStY1cuq+CDVbT84EBftRjUhSEV2+1kc=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "xyz",
+    "first_name": "xy",
+    "last_name": "z",
+    "email": "xyz@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-12-01T02:20:20.437Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$600000$j4kJ8Bmen5OVpCesp1Ext9$PTlYr6wg0rZlzeX1ptPt//5cjqNdfyE1B/lAEC0muXM=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "qwe",
+    "first_name": "qw",
+    "last_name": "e",
+    "email": "qwe@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-12-01T02:21:16.512Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$600000$XYaBFk85zsfxpUDVxgOWe6$wvrI2LLOxRX+8BZWG7BV9OxTvBPkDNr3dPGJfPVHjjY=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "zxc",
+    "first_name": "zx",
+    "last_name": "c",
+    "email": "zxc@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-12-04T03:00:02.553Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$600000$3xseWJkqze5wFV09Z8Va3D$WLyDJYtOy2XWkklKRy/qX03Fc46hCatvxNVt6wS0yI0=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "yashikaV",
+    "first_name": "Yashika",
+    "last_name": "V",
+    "email": "yashikavashisht021@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-12-07T18:51:15.899Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "api.userextra",
+  "pk": 1,
+  "fields": {
+    "user": [
+      "keshavbisht"
+    ],
+    "phone": "8700745527",
+    "status": "active",
+    "role": "admin",
+    "assigned_processes": [
+      4,
+      5
+    ],
+    "assigned_subprocesses": [
+      5,
+      11
+    ],
+    "assigned_objectives": [
+      1,
+      2
+    ]
+  }
+},
+{
+  "model": "api.userextra",
+  "pk": 2,
+  "fields": {
+    "user": [
+      "Maahir"
+    ],
+    "phone": "1000000001",
+    "status": "active",
+    "role": "admin",
+    "assigned_processes": [],
+    "assigned_subprocesses": [],
+    "assigned_objectives": []
+  }
+},
+{
+  "model": "api.userextra",
+  "pk": 4,
+  "fields": {
+    "user": [
+      "krishi_sehrawat"
+    ],
+    "phone": "0000000000",
+    "status": "active",
+    "role": "user",
+    "assigned_processes": [
+      4,
+      5
+    ],
+    "assigned_subprocesses": [
+      5,
+      11
+    ],
+    "assigned_objectives": [
+      1,
+      2
+    ]
+  }
+},
+{
+  "model": "api.userextra",
+  "pk": 5,
+  "fields": {
+    "user": [
+      "xyz"
+    ],
+    "phone": "1111111111",
+    "status": "active",
+    "role": "user",
+    "assigned_processes": [],
+    "assigned_subprocesses": [],
+    "assigned_objectives": []
+  }
+},
+{
+  "model": "api.userextra",
+  "pk": 7,
+  "fields": {
+    "user": [
+      "qwe"
+    ],
+    "phone": "3333333333",
+    "status": "active",
+    "role": "user",
+    "assigned_processes": [],
+    "assigned_subprocesses": [],
+    "assigned_objectives": []
+  }
+},
+{
+  "model": "api.userextra",
+  "pk": 8,
+  "fields": {
+    "user": [
+      "zxc"
+    ],
+    "phone": "4444444444",
+    "status": "active",
+    "role": "user",
+    "assigned_processes": [],
+    "assigned_subprocesses": [],
+    "assigned_objectives": []
+  }
+},
+{
+  "model": "api.userextra",
+  "pk": 9,
+  "fields": {
+    "user": [
+      "yashikaV"
+    ],
+    "phone": "8811995780",
+    "status": "active",
+    "role": "user",
+    "assigned_processes": [],
+    "assigned_subprocesses": [],
+    "assigned_objectives": []
+  }
+},
+{
+  "model": "api.process",
+  "pk": 3,
+  "fields": {
+    "process_name": "FINANCE",
+    "status": "active",
+    "created_at": "2025-12-07T15:45:03.089Z",
+    "updated_at": "2025-12-07T15:45:03.089Z"
+  }
+},
+{
+  "model": "api.process",
+  "pk": 4,
+  "fields": {
+    "process_name": "HR",
+    "status": "active",
+    "created_at": "2025-12-07T18:14:33.015Z",
+    "updated_at": "2025-12-07T18:14:33.015Z"
+  }
+},
+{
+  "model": "api.process",
+  "pk": 5,
+  "fields": {
+    "process_name": "IT",
+    "status": "active",
+    "created_at": "2025-12-07T18:16:18.776Z",
+    "updated_at": "2025-12-07T18:16:18.776Z"
+  }
+},
+{
+  "model": "api.process",
+  "pk": 6,
+  "fields": {
+    "process_name": "RESUME",
+    "status": "active",
+    "created_at": "2025-12-07T18:33:05.981Z",
+    "updated_at": "2025-12-10T09:41:31.818Z"
+  }
+},
+{
+  "model": "api.process",
+  "pk": 7,
+  "fields": {
+    "process_name": "ABC",
+    "status": "active",
+    "created_at": "2025-12-08T06:04:08.147Z",
+    "updated_at": "2025-12-08T06:04:08.147Z"
+  }
+},
+{
+  "model": "api.subprocess",
+  "pk": 2,
+  "fields": {
+    "process": 3,
+    "subprocess_name": "cash",
+    "status": "active",
+    "link": "https://drive.google.com/drive/u/0/folders/16cQ3y5d3PrlEm9mKNHwgdlYPN0T5F_8N",
+    "created_at": "2025-12-07T15:45:12.222Z",
+    "updated_at": "2025-12-07T18:39:42.065Z"
+  }
+},
+{
+  "model": "api.subprocess",
+  "pk": 3,
+  "fields": {
+    "process": 4,
+    "subprocess_name": "Recruitment",
+    "status": "active",
+    "link": "https://drive.google.com/drive/u/0/folders/16cQ3y5d3PrlEm9mKNHwgdlYPN0T5F_8N",
+    "created_at": "2025-12-07T18:14:52.280Z",
+    "updated_at": "2025-12-07T18:39:37.298Z"
+  }
+},
+{
+  "model": "api.subprocess",
+  "pk": 4,
+  "fields": {
+    "process": 4,
+    "subprocess_name": "Payroll",
+    "status": "active",
+    "link": "https://drive.google.com/drive/u/0/folders/16cQ3y5d3PrlEm9mKNHwgdlYPN0T5F_8N",
+    "created_at": "2025-12-07T18:15:06.520Z",
+    "updated_at": "2025-12-07T18:39:32.648Z"
+  }
+},
+{
+  "model": "api.subprocess",
+  "pk": 5,
+  "fields": {
+    "process": 4,
+    "subprocess_name": "Onboarding",
+    "status": "active",
+    "link": "https://drive.google.com/drive/u/0/folders/16cQ3y5d3PrlEm9mKNHwgdlYPN0T5F_8N",
+    "created_at": "2025-12-07T18:15:15.780Z",
+    "updated_at": "2025-12-07T18:39:28.433Z"
+  }
+},
+{
+  "model": "api.subprocess",
+  "pk": 6,
+  "fields": {
+    "process": 4,
+    "subprocess_name": "Exit Management",
+    "status": "active",
+    "link": "https://drive.google.com/drive/u/0/folders/16cQ3y5d3PrlEm9mKNHwgdlYPN0T5F_8N",
+    "created_at": "2025-12-07T18:15:40.694Z",
+    "updated_at": "2025-12-07T18:39:23.549Z"
+  }
+},
+{
+  "model": "api.subprocess",
+  "pk": 7,
+  "fields": {
+    "process": 3,
+    "subprocess_name": "Billing",
+    "status": "active",
+    "link": "https://drive.google.com/drive/u/0/folders/16cQ3y5d3PrlEm9mKNHwgdlYPN0T5F_8N",
+    "created_at": "2025-12-07T18:15:56.163Z",
+    "updated_at": "2025-12-07T18:39:18.846Z"
+  }
+},
+{
+  "model": "api.subprocess",
+  "pk": 8,
+  "fields": {
+    "process": 3,
+    "subprocess_name": "Budgeting",
+    "status": "active",
+    "link": "https://drive.google.com/drive/u/0/folders/16cQ3y5d3PrlEm9mKNHwgdlYPN0T5F_8N",
+    "created_at": "2025-12-07T18:16:06.644Z",
+    "updated_at": "2025-12-07T18:39:15.249Z"
+  }
+},
+{
+  "model": "api.subprocess",
+  "pk": 9,
+  "fields": {
+    "process": 5,
+    "subprocess_name": "Helpdesk",
+    "status": "active",
+    "link": "https://drive.google.com/drive/u/0/folders/16cQ3y5d3PrlEm9mKNHwgdlYPN0T5F_8N",
+    "created_at": "2025-12-07T18:16:29.478Z",
+    "updated_at": "2025-12-07T18:39:11.666Z"
+  }
+},
+{
+  "model": "api.subprocess",
+  "pk": 10,
+  "fields": {
+    "process": 5,
+    "subprocess_name": "Asset Management",
+    "status": "active",
+    "link": "https://drive.google.com/drive/u/0/folders/16cQ3y5d3PrlEm9mKNHwgdlYPN0T5F_8N",
+    "created_at": "2025-12-07T18:16:38.313Z",
+    "updated_at": "2025-12-07T18:39:08.281Z"
+  }
+},
+{
+  "model": "api.subprocess",
+  "pk": 11,
+  "fields": {
+    "process": 5,
+    "subprocess_name": "Backup",
+    "status": "active",
+    "link": "https://drive.google.com/drive/u/0/folders/16cQ3y5d3PrlEm9mKNHwgdlYPN0T5F_8N",
+    "created_at": "2025-12-07T18:16:48.162Z",
+    "updated_at": "2025-12-07T18:39:04.712Z"
+  }
+},
+{
+  "model": "api.subprocess",
+  "pk": 12,
+  "fields": {
+    "process": 5,
+    "subprocess_name": "Access Control",
+    "status": "active",
+    "link": "https://drive.google.com/drive/u/0/folders/16cQ3y5d3PrlEm9mKNHwgdlYPN0T5F_8N",
+    "created_at": "2025-12-07T18:17:01.145Z",
+    "updated_at": "2025-12-07T18:38:58.937Z"
+  }
+},
+{
+  "model": "api.subprocess",
+  "pk": 13,
+  "fields": {
+    "process": 6,
+    "subprocess_name": "KESHAV RESUME",
+    "status": "active",
+    "link": "https://drive.google.com/file/d/1Ej-lV_9QzWQIFFzUQKLu_wDTuNsrdFLg/view?usp=sharing",
+    "created_at": "2025-12-07T18:33:17.262Z",
+    "updated_at": "2025-12-07T18:33:17.262Z"
+  }
+},
+{
+  "model": "api.subprocess",
+  "pk": 14,
+  "fields": {
+    "process": 7,
+    "subprocess_name": "zx",
+    "status": "active",
+    "link": "https://drive.google.com/file/d/1Ej-lV_9QzWQIFFzUQKLu_wDTuNsrdFLg/view?usp=sharing",
+    "created_at": "2025-12-08T06:06:14.531Z",
+    "updated_at": "2025-12-08T06:06:14.531Z"
+  }
+},
+{
+  "model": "api.objective",
+  "pk": 1,
+  "fields": {
+    "process": 4,
+    "subprocess": 5,
+    "objective_name": "Details",
+    "status": "active",
+    "created_at": "2025-12-10T09:41:53.927Z",
+    "updated_at": "2025-12-10T09:41:53.928Z"
+  }
+},
+{
+  "model": "api.objective",
+  "pk": 2,
+  "fields": {
+    "process": 5,
+    "subprocess": 11,
+    "objective_name": "how to do Backup",
+    "status": "active",
+    "created_at": "2025-12-11T04:34:50.230Z",
+    "updated_at": "2025-12-11T05:40:47.947Z"
+  }
+},
+{
+  "model": "api.document",
+  "pk": 1,
+  "fields": {
+    "objective": 2,
+    "title": "KeshavBisht.pdf",
+    "file": "documents/KeshavBisht.pdf",
+    "created_at": "2025-12-11T04:35:25.461Z"
+  }
+},
+{
+  "model": "api.document",
+  "pk": 2,
+  "fields": {
+    "objective": 1,
+    "title": "KeshavBisht.pdf",
+    "file": "documents/KeshavBisht_AaeAwei.pdf",
+    "created_at": "2025-12-11T05:47:17.201Z"
+  }
+},
+{
+  "model": "api.video",
+  "pk": 1,
+  "fields": {
+    "objective": 2,
+    "title": "Untitled Video",
+    "video_url": "https://www.youtube.com/results?search_query=striver",
+    "created_at": "2025-12-11T04:35:55.506Z"
+  }
+},
+{
+  "model": "api.image",
+  "pk": 1,
+  "fields": {
+    "objective": 2,
+    "title": "ProfilePicture.jpg",
+    "image": "images/ProfilePicture.jpg",
+    "created_at": "2025-12-11T04:36:14.913Z"
+  }
+}
+]

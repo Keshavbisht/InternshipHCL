@@ -92,6 +92,16 @@ DATABASES = {
         conn_max_age=600,
     )
 }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'HCL',              # 👈 THIS IS THE KEY
+#         'USER': 'root',
+#         'PASSWORD': 'Keshav06',
+#         'HOST': 'localhost',
+#         'PORT': '3306',
+#     }
+# }
 
 
 # Password validation
