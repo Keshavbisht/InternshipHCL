@@ -4,5 +4,6 @@ djangorestframework-simplejwt
 django-cors-headers
 gunicorn
 dj-database-url
-mysqlclient
+pymysql
+cryptography
 whitenoise
