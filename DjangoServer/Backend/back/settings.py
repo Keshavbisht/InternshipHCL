@@ -161,6 +161,13 @@ else:
         "http://localhost:55092",
         "http://127.0.0.1:55092",
     ]
+CORS_ALLOWED_ORIGINS = [
+    "https://frolicking-brigadeiros-e55ab9.netlify.app",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://frolicking-brigadeiros-e55ab9.netlify.app",
+]
 
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
