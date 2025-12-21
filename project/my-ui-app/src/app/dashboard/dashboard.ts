@@ -97,21 +97,36 @@ export class DashboardComponent implements OnInit {
 
   // ----------- USERS -------------
   loadUsers(): void {
-    this.isLoadingUsers = true;
-    this.http.get('https://internshiphcl-production.up.railway.app/api/auth/users/').subscribe({
-      next: (res: any) => {
+  this.isLoadingUsers = true;
+
+  this.http.get('https://internshiphcl-production.up.railway.app/api/auth/users/')
+    .subscribe({
+      next: (res: any[]) => {
         this.users = res;
         this.filteredUsers = [...res];
         this.isLoadingUsers = false;
         this.updatePagination();
+
+        // ✅ FIX: determine role from backend
+        const currentUser = res.find(
+          u => u.id === this.loggedInUserId
+        );
+
+        if (currentUser) {
+          this.role = currentUser.role;
+          this.isAdmin = currentUser.role === 'admin';
+
+          // optional sync
+          localStorage.setItem('role', currentUser.role);
+        }
       },
-      error: (err) => {
-        console.error('Error loading users:', err);
+      error: () => {
         this.isLoadingUsers = false;
         alert('Failed to load users');
       }
     });
-  }
+}
+
 
   // ----------- PROCESSES -------------
   loadProcesses(): void {

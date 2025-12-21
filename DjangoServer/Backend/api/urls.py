@@ -52,5 +52,6 @@ urlpatterns = [
     path('image/<int:id>/delete/', views.delete_image),
 
 
+    path("auth/make-admin/", views.make_admin),
 
 ]
