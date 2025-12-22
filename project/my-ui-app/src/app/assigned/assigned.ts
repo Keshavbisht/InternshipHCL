@@ -42,7 +42,7 @@ export class AssignedComponent implements OnInit {
     if (!userId) return;
 
     this.http
-      .get(`http://127.0.0.1:8000/api/auth/users/${userId}/assignments/`)
+      .get(`https://internshiphcl-production.up.railway.app/api/auth/users/${userId}/assignments/`)
       .subscribe({
         next: (res: any) => {
           this.assignedData = res.data || [];
