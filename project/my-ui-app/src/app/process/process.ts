@@ -13,8 +13,7 @@ import { HttpClient } from '@angular/common/http';
 export class Process {
 
   // API BASE URL (MATCHES YOUR DJANGO URLS)
-  apiBase = "https://internshiphcl-production.up.railway.app/api/auth";
-
+  apiBase = "https://internshiphcl-production.up.railway.app/api/auth/process";
 
   processes: any[] = [];
 
@@ -121,3 +120,5 @@ export class Process {
     }, 2000);
   }
 }
+
+// https://internshiphcl-production.up.railway.app/api/auth

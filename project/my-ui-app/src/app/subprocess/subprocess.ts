@@ -14,7 +14,6 @@ export class Subprocess {
 
   apiBase = "https://internshiphcl-production.up.railway.app/api/auth";
 
-
   processes: any[] = [];
   subprocesses: any[] = [];
 
