@@ -1,4 +1,4 @@
--- CREATE DATABASE HCL CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 USE HCL;  
 SHOW TABLES;
 SELECT * FROM auth_user; -- all email and password data is stroing here
